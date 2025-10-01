@@ -3,6 +3,12 @@ from bs4 import BeautifulSoup
 import requests
 import json
 
+# Variables & Constants
+NUM_EVENTS = 3
+events = {}
+no_events = []
+
+# Functions
 def get_uiuc_event_info(link: str):
     # Scrapes the html from the event page
     html_text = requests.get(link).text
@@ -62,23 +68,42 @@ def get_uiuc_event_info(link: str):
     # Converts dict object into json format and returns it        
     return json.dumps(event_info, indent=4, sort_keys=True)
 
-# DEMO of get_uiuc_event_info
-html_text = requests.get("https://illinois.edu/resources/calendars.html").text
-soup = BeautifulSoup(html_text, "lxml")
-calendar_list = soup.find("ul", class_="ruled")
-calendars = calendar_list.find_all("li")
-
-events = {}
-for calendar in calendars:
-    link = calendar.find("a").attrs["href"]
-    html_text = requests.get(link).text
+def main():
+    # Scrapes the main calendar page
+    html_text = requests.get("https://illinois.edu/resources/calendars.html").text
     soup = BeautifulSoup(html_text, "lxml")
-    event_listings = soup.find_all("div", class_="title")
+    calendar_list = soup.find("ul", class_="ruled")
+    calendars = calendar_list.find_all("li")
 
-    # Prints the first event from each calendar
-    if len(event_listings) == 0:
-        continue
-    event_link = "https://calendars.illinois.edu/" + event_listings[0].find("a").attrs["href"]
-    events[event_link] = get_uiuc_event_info(event_link)
-    print("Event: " + event_link)
-    print(events[event_link])
+    for calendar in calendars:
+        # Scrapes the calendar page
+        link = calendar.find("a").attrs["href"]
+        html_text = requests.get(link).text
+        soup = BeautifulSoup(html_text, "lxml")
+        event_listings = soup.find_all("div", class_="title")
+
+        # Skips calendar if there are no events
+        if len(event_listings) == 0:
+            no_events.append(link)
+            continue
+
+        # Prints calendar name & link
+        print(f"CALENDAR: {soup.find("h1").text} ({link}) \n")
+
+        # Prints the first NUM_EVENTS events from the calendar, if any exist
+        for i in range(0, min(len(event_listings), NUM_EVENTS)):
+            event_link = "https://calendars.illinois.edu/" + event_listings[i].find("a").attrs["href"]
+            events[event_link] = get_uiuc_event_info(event_link)
+            print(f"Event #{str(i + 1)}: {event_link}")
+            print(events[event_link], end="\n\n")
+
+        print("----------------------------------------------")
+
+    # Prints skipped calendars, discuss if we're going to use these or not in our database
+    print(f"Looked through {len(calendars)} calendars")
+    print("These calendars do not have events or cannot be scraped with the scraper:")
+    for link in no_events:
+        print(link)
+
+if __name__ == "__main__":
+    main()
