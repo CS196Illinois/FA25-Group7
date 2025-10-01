@@ -8,6 +8,27 @@ NUM_EVENTS = 3
 events = {}
 no_events = []
 
+"""
+TOOO:
+
+-> IGNORE:
+http://senate.illinois.edu/a_calendar.asp
+https://extension.illinois.edu/global/events
+http://illinois.edu/calendar/list/642
+
+-> MAKE NEW SCRAPERS FOR:
+http://www.thestatefarmcenter.com/
+http://www.fightingillini.com/calendar.aspx
+
+-> Make JSON consistent for each event
+
+-> Add a tag feature in the JSON
+
+-> Make different scrapers for each type of calendar (General, State Farm, Sports)
+
+-> Clean up code, add more reusability
+"""
+
 # Functions
 def get_uiuc_event_info(link: str):
     # Scrapes the html from the event page
