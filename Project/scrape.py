@@ -26,7 +26,7 @@ http://www.fightingillini.com/calendar.aspx
 
 -> Make different scrapers for each type of calendar (General, State Farm, Sports)
 
--> Clean up code, add more reusability
+-> Clean up code and add more reusability
 """
 
 # Functions
