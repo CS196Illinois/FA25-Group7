@@ -33,7 +33,9 @@ Every event object must contain ALL of these fields (use null if data is unavail
    - Convert all times to 24-hour format (HH:MM)
    - If end_time is not specified, set it to 1 hour after start_time
    - Account for AM/PM transitions (e.g., "2 PM to 4" means 14:00 to 16:00)
-   - For all-day events with no times mentioned, set start_time and end_time to null
+   - For all-day events with no times mentioned, set start_time to 9 AM and end time to 10 AM.
+   - If date is given with reference to sent date use the sent date/time for context
+   - If no year/month is given use sent date/time year and month
 
 3. **Location**:
    - Extract physical addresses, building names, room numbers, or online meeting platforms

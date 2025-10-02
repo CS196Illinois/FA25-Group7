@@ -46,11 +46,12 @@ def fetch_emails(tenant_id, client_id, amount):
         message_number = 1
         for msg in emails.get("value", []):
             sender = "From: " + str(msg["from"]["emailAddress"]["address"])
+            sent_time = msg["receivedDateTime"]
             subject = "Subject: " + str(msg["subject"])
             html_body = msg["body"]["content"]
             soup = BeautifulSoup(html_body, "html.parser")
             plain_text = soup.get_text()
-            combined_text = sender + "\n" + subject + "\n" + plain_text
+            combined_text = sender + "\n" + "Send date/time: " + sent_time + "\n" + subject + "\n" + plain_text
             email_list.append(combined_text)
             print(str(message_number)+ ". " + combined_text)
             print("___________________________________________________________________")
@@ -167,6 +168,6 @@ if __name__ == "__main__":
         event_jsons.append(parse_email_content(email))
 
         service = get_calendar_service()
-    # for event in event_jsons:
-    #     print(event)
-    #     create_event(event, service)
+    for event in event_jsons:
+        print(event)
+        create_event(event, service)
