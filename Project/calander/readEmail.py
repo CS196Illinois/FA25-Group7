@@ -43,6 +43,7 @@ def fetch_emails(tenant_id, client_id, amount):
         url = f"https://graph.microsoft.com/v1.0/me/messages?$top={amount}&$select=subject,from,receivedDateTime,body"
         response = requests.get(url, headers=headers)
         emails = response.json()
+        message_number = 1
         for msg in emails.get("value", []):
             sender = "From: " + str(msg["from"]["emailAddress"]["address"])
             subject = "Subject: " + str(msg["subject"])
@@ -51,6 +52,9 @@ def fetch_emails(tenant_id, client_id, amount):
             plain_text = soup.get_text()
             combined_text = sender + "\n" + subject + "\n" + plain_text
             email_list.append(combined_text)
+            print(str(message_number) + combined_text)
+            print("_________________________________________________")
+            message_number += 1
     else:
         print("Login error:", result.get("error_description"))
     return email_list
@@ -142,9 +146,6 @@ def create_event(event_data, service):
         "end": {"dateTime": end_str, "timeZone": "America/Chicago"},
     }
 
-    start_date = normalize_date(event_data.get("start_date"))
-    end_date = normalize_date(event_data.get("end_date", start_date))
-
     created_event = service.events().insert(calendarId="primary", body=event).execute()
     print("Event created:", created_event.get("htmlLink"))
 
@@ -163,4 +164,5 @@ if __name__ == "__main__":
 
         service = get_calendar_service()
     for event in event_jsons:
+        print(event)
         create_event(event, service)
