@@ -9,6 +9,7 @@ You MUST output ONLY a valid JSON object with this exact structure:
 - Each event in the array is an object with the required fields below
 - Do NOT include any text, explanations, or markdown before or after the JSON
 - Do NOT wrap the JSON in code blocks or backticks
+- The JSON MUST BE COMPLETE, make sure to include closing "}" and "]", do not stop generating part way through the response.
 
 ## REQUIRED FIELDS FOR EACH EVENT
 Every event object must contain ALL of these fields (use null if data is unavailable):

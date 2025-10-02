@@ -52,8 +52,8 @@ def fetch_emails(tenant_id, client_id, amount):
             plain_text = soup.get_text()
             combined_text = sender + "\n" + subject + "\n" + plain_text
             email_list.append(combined_text)
-            print(str(message_number) + combined_text)
-            print("_________________________________________________")
+            print(str(message_number)+ ". " + combined_text)
+            print("___________________________________________________________________")
             message_number += 1
     else:
         print("Login error:", result.get("error_description"))
@@ -74,10 +74,14 @@ def parse_email_content(email_content):
         ], 
         response_format={ "type": "json_object" },
 
-        max_tokens=500,
+        max_tokens=1000,
         temperature=0.2,
     )
     raw_output = response.choices[0].message.content
+    print("\n\n\n")
+    print("RAW OUTPUT")
+    print(raw_output)
+
     try:
         parsed_json = json.loads(raw_output)
     except json.JSONDecodeError:
@@ -163,6 +167,6 @@ if __name__ == "__main__":
         event_jsons.append(parse_email_content(email))
 
         service = get_calendar_service()
-    for event in event_jsons:
-        print(event)
-        create_event(event, service)
+    # for event in event_jsons:
+    #     print(event)
+    #     create_event(event, service)
