@@ -42,12 +42,6 @@ def get_uiuc_event_info(link: str):
     # Name of the event
     event_info["title"] = event.find("h2").text
 
-    # Picture for the event, if given
-    event_info["image"] = ""
-    img = event.find('img', id="image-detail-1")
-    if img != None:
-        event_info["image"] = img.attrs["src"] 
-
     # Description for the event, if given
     event_info["description"] = ""
     desc = event.find("dd", class_="ws-description")
@@ -67,7 +61,8 @@ def get_uiuc_event_info(link: str):
                 # Splits up the date and time since they are in one string
                 date_time = details[key].split("\xa0")
                 # Adds the date/range of dates
-                event_info["date"] = date_time[0].strip()
+                event_info["start_date"] = date_time[0].strip()
+                event_info["end_date"] = date_time[0].strip()
                 # Converts the given time slot into start_time and end_time
                 time = date_time[1].strip()
                 if time != "All Day" and time != "":
