@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+<<<<<<< HEAD
 from datetime import datetime, timedelta
 
 # Variables & Constants
@@ -29,9 +30,28 @@ http://www.fightingillini.com/calendar.aspx
 
 -> Clean up code and add more reusability
 """
+=======
+import re
+
+# Variables & Constants
+GENERAL_CALENDARS = [
+    "https://calendars.illinois.edu/list/7",
+    "https://calendars.illinois.edu/list/557",
+    "https://calendars.illinois.edu/list/594",
+    "https://calendars.illinois.edu/list/4756",
+    "https://calendars.illinois.edu/list/596",
+    "https://calendars.illinois.edu/list/62",
+    "https://calendars.illinois.edu/list/597",
+    "https://calendars.illinois.edu/list/637",
+    "https://calendars.illinois.edu/list/4757",
+    "https://calendars.illinois.edu/list/598"
+]
+STATE_FARM_CENTER_CALENDAR = "https://www.statefarmcenter.com/events/all"
+ATHLETIC_CALENDAR = "https://fightingillini.com/calendar"
+>>>>>>> 192aa6d95ee484b67954eb8ea418e7f538197294
 
 # Functions
-def get_uiuc_event_info(link: str):
+def get_general_event_info(link: str):
     # Scrapes the html from the event page
     html_text = requests.get(link).text
     soup = BeautifulSoup(html_text, "lxml")
@@ -50,7 +70,7 @@ def get_uiuc_event_info(link: str):
     event_info["title"] = event_name
 
     # Description for the event, if given
-    event_info["description"] = ""
+    event_info["description"] = "N/A"
     desc = event.find("dd", class_="ws-description")
     if desc != None:
         event_info["description"] = desc.text
@@ -60,6 +80,7 @@ def get_uiuc_event_info(link: str):
                 [detail.text.strip().lower().replace(" ", "_") for detail in event.find_all("dt")], 
                 [detail.text for detail in event.find_all("dd")]
                 ))
+<<<<<<< HEAD
                 
     # Put each detail into our event_info dict
     for key in details:
@@ -76,17 +97,58 @@ def get_uiuc_event_info(link: str):
                     if len(time) >= 5:
                         event_info["start_time"] = time[0] + " " + time[4].upper()
                         event_info["end_time"] = time[3] + " " + time[4].upper()
+=======
+    
+    # Cost of the event, assume to be 0 unless otherwise specified
+    event_info["cost"] = 0.0
+    
+    # Put each detail into our event_info dict, matching the format of our JSON
+    for key in details:
+        match key:
+            case "date":
+                date_string = details[key]
+                # Looks for start/end dates using regex
+                if match_date := re.search(r"(\w+ \d{1,2}, \d+) *-* *(\w+ \d{1,2}, \d+)?", date_string):
+                    event_info["start_date"] = match_date.group(1)
+                    if match_date.group(2) is not None:
+                        event_info["end_date"] = match_date.group(2)
+>>>>>>> 192aa6d95ee484b67954eb8ea418e7f538197294
                     else:
-                        event_info["end_time"] = "11:59 PM"
-
-                    if time[1] != "":
-                        event_info["start_time"] = time[0] + " " + time[1].upper()       
+                        event_info["end_date"] = match_date.group(1)
                 else:
+                    event_info["start_date"] = "N/A"
+                    event_info["end_date"] = "N/A"
+                # Looks for start/end times using regex
+                if match_time := re.search(r"(\d+:\d+)[a-z -]*(\d+:\d+)?", date_string):
+                    # Determines if start/end times are in AM/PM
+                    startMeridiem = "AM"
+                    endMerideiem = "PM"
+                    if "am" in date_string and "pm" not in date_string:
+                        endMerideiem = "AM"
+                    elif "am" not in date_string and "pm" in date_string:
+                        startMeridiem = "PM"
+                    # Pulls the times from the regex and puts it in event info
+                    event_info["start_time"] = match_time.group(1) + " " + startMeridiem
+                    if match_time.group(2) is not None:
+                        event_info["end_time"] = match_time.group(2) + " " + endMerideiem
+                    else:
+                        event_info["end_time"] = match_time.group(1) + " " + endMerideiem
+                else:
+                    # Assumes 'All Day' if no match is found
                     event_info["start_time"] = "12:00 AM"
                     event_info["end_time"] = "11:59 PM"
-            case _:
-                event_info[key] = details[key]
+            case "location":
+                event_info["location"] = details[key]
+            case "event_type":
+                event_info["tag"] = details[key]
+            case "sponsor":
+                event_info["host"] = details[key]
+            case "price" | "cost":
+                event_info["cost"] = details[key]
+    
+    return event_info
 
+<<<<<<< HEAD
     # Converts dict object into json format and returns it        
     return json.dumps(event_info, indent=4, sort_keys=True)
 
@@ -136,9 +198,14 @@ def main():
     calendars = calendar_list.find_all("li")
 
     for calendar in calendars:
+=======
+def scrape_general():
+    # Scrapes General Events
+    events = {}
+    for calendar_link in GENERAL_CALENDARS:
+>>>>>>> 192aa6d95ee484b67954eb8ea418e7f538197294
         # Scrapes the calendar page
-        link = calendar.find("a").attrs["href"]
-        html_text = requests.get(link).text
+        html_text = requests.get(calendar_link).text
         soup = BeautifulSoup(html_text, "lxml")
         if link == "http://www.thestatefarmcenter.com/":
             event_listings = soup.find_all("h3", class_="title")
@@ -148,6 +215,7 @@ def main():
             # Prints calendar name & link
             title_tag = soup.find("h1")
 
+<<<<<<< HEAD
         # Skips calendar if there are no events
         if len(event_listings) == 0:
             no_events.append(link)
@@ -178,12 +246,25 @@ def main():
                 print(event_data, end="\n\n")
 
         print("-" * 100)
+=======
+        # Puts the event link and event info into the JSON for each event in the calendar
+        for i in range(0, len(event_listings)):
+            event_link = "https://calendars.illinois.edu/" + event_listings[i].find("a").attrs["href"]
+            events[event_link] = get_general_event_info(event_link)
 
-    # Prints skipped calendars, discuss if we're going to use these or not in our database
-    print(f"Looked through {len(calendars)} calendars")
-    print("These calendars do not have events or cannot be scraped with the scraper:")
-    for link in no_events:
-        print(link)
+    return events
+>>>>>>> 192aa6d95ee484b67954eb8ea418e7f538197294
+
+def scrape_state_farm():
+    pass
+
+def scrape_athletics():
+    pass
+
+def main():
+    json_data_general = scrape_general()
+    with open("general_events.json", "w", encoding="utf-8") as file:
+        json.dump(json_data_general, file, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
     main()
