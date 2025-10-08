@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from datetime import datetime, timedelta
 
 # Variables & Constants
 NUM_EVENTS = 3
@@ -53,7 +54,7 @@ def get_uiuc_event_info(link: str):
                 [detail.text.strip().lower().replace(" ", "_") for detail in event.find_all("dt")], 
                 [detail.text for detail in event.find_all("dd")]
                 ))
-    
+                
     # Put each detail into our event_info dict
     for key in details:
         match key:
@@ -61,8 +62,7 @@ def get_uiuc_event_info(link: str):
                 # Splits up the date and time since they are in one string
                 date_time = details[key].split("\xa0")
                 # Adds the date/range of dates
-                event_info["start_date"] = date_time[0].strip()
-                event_info["end_date"] = date_time[0].strip()
+                event_info["date"] = date_time[0].strip()
                 # Converts the given time slot into start_time and end_time
                 time = date_time[1].strip()
                 if time != "All Day" and time != "":
@@ -83,6 +83,40 @@ def get_uiuc_event_info(link: str):
 
     # Converts dict object into json format and returns it        
     return json.dumps(event_info, indent=4, sort_keys=True)
+
+def get_state_farm_center_event_info(link: str):
+    # Scrapes the html from the event page
+    html_text = requests.get(link).text
+    soup = BeautifulSoup(html_text, "lxml")
+    event = soup.find("div", id="column_1")
+    # Dictonary to store event info
+    event_info = {}
+    # Name of the event
+    event_info["title"] = event.find("h1").text
+    # Description for the event, if given
+    event_info["description"] = ""
+    desc = event.find("div", class_="description_inner")
+    if desc != None:
+        event_info["description"] = desc.text
+    # The rest of the details are stored in a dl, convert dt's and dd's into a dictionary
+    details = dict(zip(
+                [detail.text.strip().lower().replace(" ", "_") for detail in event.find_all("div")], 
+                [detail.text for detail in event.find_all("span")]
+                ))
+    for key in details:
+        match key:
+            case "Date":
+                # Adds the date
+                event_info["date"] = details[key].strip()
+            case "Event Starts":
+                # Finds start time
+                start_time = details[key]
+                # Adds the start time
+                event_info["start_time"] = start_time.strip()
+            case _:
+                event_info[key] = details[key]
+
+
 
 def main():
     # Scrapes the main calendar page
