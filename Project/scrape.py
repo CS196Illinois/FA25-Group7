@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta
 
 # Variables & Constants
-NUM_EVENTS = 3
+NUM_EVENTS = 1
 events = {}
 no_events = []
 
@@ -41,7 +41,13 @@ def get_uiuc_event_info(link: str):
     event_info = {}
 
     # Name of the event
-    event_info["title"] = event.find("h2").text
+    name_tag = event.find("h2").text
+    if name_tag:
+        event_name = name_tag.strip()
+    else: 
+        event_name = "Unknown Event Name"
+
+    event_info["title"] = event_name
 
     # Description for the event, if given
     event_info["description"] = ""
@@ -88,7 +94,7 @@ def get_state_farm_center_event_info(link: str):
     # Scrapes the html from the event page
     html_text = requests.get(link).text
     soup = BeautifulSoup(html_text, "lxml")
-    event = soup.find("div", id="column_1")
+    event = soup.find("div", class_="leftColumn")
     # Dictonary to store event info
     event_info = {}
     # Name of the event
@@ -113,6 +119,10 @@ def get_state_farm_center_event_info(link: str):
                 start_time = details[key]
                 # Adds the start time
                 event_info["start_time"] = start_time.strip()
+                start_time_obj = datetime.strptime(event_info['start_time'], "%I:%M %p")
+                end_time_obj = start_time_obj + timedelta(hours=2)
+                event_info['end_time'] = end_time_obj.strftime("%I:%M %p")
+
             case _:
                 event_info[key] = details[key]
 
@@ -130,24 +140,44 @@ def main():
         link = calendar.find("a").attrs["href"]
         html_text = requests.get(link).text
         soup = BeautifulSoup(html_text, "lxml")
-        event_listings = soup.find_all("div", class_="title")
+        if link == "http://www.thestatefarmcenter.com/":
+            event_listings = soup.find_all("h3", class_="title")
+            title_tag = "State Farm Center"
+        else:
+            event_listings = soup.find_all("div", class_="title")
+            # Prints calendar name & link
+            title_tag = soup.find("h1")
 
         # Skips calendar if there are no events
         if len(event_listings) == 0:
             no_events.append(link)
             continue
 
-        # Prints calendar name & link
-        print(f"CALENDAR: {soup.find("h1").text} ({link}) \n")
+        # Checking if title provided
+        if type(title_tag) != str:
+            calendar_title = title_tag.text.strip()
+        else:
+            if title_tag:
+                calendar_title = title_tag
+            else:
+                calendar_title = "Unknown Calendar Title"
+
+        print(f"CALENDAR: {calendar_title} ({link}) \n")
 
         # Prints the first NUM_EVENTS events from the calendar, if any exist
         for i in range(0, min(len(event_listings), NUM_EVENTS)):
             event_link = "https://calendars.illinois.edu/" + event_listings[i].find("a").attrs["href"]
-            events[event_link] = get_uiuc_event_info(event_link)
-            print(f"Event #{str(i + 1)}: {event_link}")
-            print(events[event_link], end="\n\n")
+            # Handles links that don't work with general scraper
+            if link == "http://www.thestatefarmcenter.com/":
+                event_data = get_state_farm_center_event_info(event_link)
+            else:
+                event_data = get_uiuc_event_info(event_link)
+            if event_data:
+                events[event_link] = event_data
+                print(f"Event #{str(i + 1)}: {event_link}")
+                print(event_data, end="\n\n")
 
-        print("----------------------------------------------")
+        print("-" * 100)
 
     # Prints skipped calendars, discuss if we're going to use these or not in our database
     print(f"Looked through {len(calendars)} calendars")
