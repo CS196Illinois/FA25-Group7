@@ -13,6 +13,7 @@ import google.auth
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import re
 
 
 load_dotenv()
@@ -75,7 +76,7 @@ def parse_email_content(email_content):
         ], 
         response_format={ "type": "json_object" },
 
-        max_tokens=1000,
+        # max_tokens=1000,
         temperature=0.2,
     )
     raw_output = response.choices[0].message.content
@@ -127,10 +128,10 @@ def get_calendar_service():
 
 def create_event(event_data, service):
 
-    start_time = event_data.get("start_time", "09:00")
-    end_time = event_data.get("end_time", "10:00")
-    start_date = event_data.get("start_date", datetime.now().strftime("%Y-%m-%d"))
-    end_date = event_data.get("end_date", start_date)
+    start_time = event_data.get("start_time") or "09:00"
+    end_time   = event_data.get("end_time")   or "10:00"
+    start_date = event_data.get("start_date") or datetime.now().strftime("%Y-%m-%d")
+    end_date   = event_data.get("end_date")   or start_date
     location = event_data.get("location", "")
     description = event_data.get("description", event_data.get("title", ""))
     title = event_data.get("title", "Untitled Event")
@@ -150,9 +151,48 @@ def create_event(event_data, service):
         "start": {"dateTime": start_str, "timeZone": "America/Chicago"},
         "end": {"dateTime": end_str, "timeZone": "America/Chicago"},
     }
-
+    
     created_event = service.events().insert(calendarId="primary", body=event).execute()
     print("Event created:", created_event.get("htmlLink"))
+
+def extract_json(text):
+    # Find the first JSON object or array
+    m = re.search(r'(\{.*\}|\[.*\])', text, re.S)
+    if not m:
+        raise ValueError("No JSON object/array found in text")
+    candidate = m.group(1)
+
+    # Quick repairs
+    candidate = candidate.strip()
+
+    # Replace smart single quotes with regular single quotes
+    candidate = candidate.replace("’", "'").replace("“", '"').replace("”", '"')
+
+    # If it uses single quotes for keys/strings, convert to double quotes
+    def single_to_double(s):
+        # only replace single quotes that appear to delimit strings (simple heuristic)
+        return re.sub(r"(?P<prefix>[:\s,\[\{])'(?P<body>[^']*)'(?P<suffix>[\s,\]\}\:])",
+                      lambda m: f'{m.group("prefix")}"{m.group("body")}"{m.group("suffix")}',
+                      s)
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        pass
+
+    # Try converting single-quoted strings to double quotes (best-effort)
+    try:
+        fixed = single_to_double(candidate)
+        return json.loads(fixed)
+    except json.JSONDecodeError:
+        pass
+
+    # Remove trailing commas (e.g., {"a":1,})
+    fixed2 = re.sub(r',(\s*[}\]])', r'\1', candidate)
+    try:
+        return json.loads(fixed2)
+    except json.JSONDecodeError as e:
+        # As last resort, raise with context
+        raise ValueError(f"Failed to parse JSON. Last attempt error: {e}\nCandidate:\n{fixed2[:1000]}") from e
 
 if __name__ == "__main__":
     TENANT_ID = os.getenv("TENANT_ID")
@@ -164,10 +204,15 @@ if __name__ == "__main__":
     emails = fetch_emails(TENANT_ID, CLIENT_ID, amount)
 
     event_jsons = []
+    service = get_calendar_service()
     for email in emails:
         event_jsons.append(parse_email_content(email))
 
-        service = get_calendar_service()
-    for event in event_jsons:
-        print(event)
-        create_event(event, service)
+    for event_json in event_jsons:
+        if not event_json or "events" not in event_json:
+            continue
+        for e in event_json["events"]:
+            if not e.get("title") or not e.get("start_date"):
+                print("Skipping incomplete event:", e)
+                continue
+            create_event(e, service)
