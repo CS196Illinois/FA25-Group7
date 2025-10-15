@@ -201,18 +201,35 @@ if __name__ == "__main__":
     amount = input("How many emails do you want to fetch? (1-25): ")
     if amount.isdigit():
         amount = int(amount) if int(amount) > 0 and int(amount) <= 25 else 5
-    emails = fetch_emails(TENANT_ID, CLIENT_ID, amount)
+        emails = fetch_emails(TENANT_ID, CLIENT_ID, amount)
 
-    event_jsons = []
-    service = get_calendar_service()
-    for email in emails:
-        event_jsons.append(parse_email_content(email))
+        event_jsons = []
+        service = get_calendar_service()
+        for email in emails:
+            event_jsons.append(parse_email_content(email))
 
-    for event_json in event_jsons:
-        if not event_json or "events" not in event_json:
-            continue
-        for e in event_json["events"]:
-            if not e.get("title") or not e.get("start_date"):
-                print("Skipping incomplete event:", e)
+        for event_json in event_jsons:
+            if not event_json or "events" not in event_json:
                 continue
-            create_event(e, service)
+            for e in event_json["events"]:
+                if not e.get("title") or not e.get("start_date"):
+                    print("Skipping incomplete event:", e)
+                    continue
+                create_event(e, service)
+    elif amount.lower() == "custom":
+        custom_event = input("Enter your custom event description: ")
+        # current time and date to help with parsing
+        now = datetime.now()
+        current_date = now.strftime("%Y-%m-%d")
+        current_time = now.strftime("%H:%M")
+        custom_event = f"Current date: {current_date}, Current time: {current_time}\n" + custom_event
+        event_json = parse_email_content(custom_event)
+        if not event_json or "events" not in event_json:
+            print("No events found in the response.")
+        else:
+            service = get_calendar_service()
+            for e in event_json["events"]:
+                if not e.get("title") or not e.get("start_date"):
+                    print("Skipping incomplete event:", e)
+                    continue
+                create_event(e, service)
