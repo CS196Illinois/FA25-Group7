@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Calendar</h1>
+      <p id="current-date"></p>
+      <div class="header-buttons">
+        <button id="add-email">Add from Email</button>
+        <button id="add-event">+ Add Event</button>
+      </div>
+    </header>
+
+    <section class="calendar-section">
+      <div class="calendar-container">
+        <div class="month-controls">
+          <button id="prev-month"></button>
+          <h2 id="month-year"></h2>
+          <button id="next-month"></button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+
+      <div class="events-panel">
+        <h3>Events</h3>
+        <div id="events-list"></div>
+      </div>
+    </section>
+
+    <section class="upcoming-section">
+      <h3>Upcoming Events</h3>
+      <div id="upcoming-events" class="upcoming-container"></div>
+    </section>
+  </div>
+
+  <!-- Add Event Modal -->
+  <div id="event-modal" class="modal">
+    <div class="modal-content">
+      <h3>Add New Event</h3>
+      <input type="text" id="event-title" placeholder="Event Title" />
+      <input type="datetime-local" id="event-date" />
+      <input type="text" id="event-location" placeholder="Location" />
+      <button id="save-event">Save</button>
+      <button id="close-modal">Cancel</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
