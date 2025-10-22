@@ -41,7 +41,7 @@ def fetch_emails(tenant_id, client_id, amount):
 
         # Use the access token to call Microsoft Graph API
         headers = {"Authorization": f"Bearer {result['access_token']}"}
-        url = f"https://graph.microsoft.com/v1.0/me/messages?$top={amount}&$select=subject,from,receivedDateTime,body"
+        url = f"https://graph.microsoft.com/v1.0/me/messages?$top={amount}&$select=id,subject,from,receivedDateTime,body,webLink"
         response = requests.get(url, headers=headers)
         emails = response.json()
         message_number = 1
@@ -49,10 +49,11 @@ def fetch_emails(tenant_id, client_id, amount):
             sender = "From: " + str(msg["from"]["emailAddress"]["address"])
             sent_time = msg["receivedDateTime"]
             subject = "Subject: " + str(msg["subject"])
+            outlook_link = msg["webLink"]
             html_body = msg["body"]["content"]
             soup = BeautifulSoup(html_body, "html.parser")
             plain_text = soup.get_text()
-            combined_text = sender + "\n" + "Send date/time: " + sent_time + "\n" + subject + "\n" + plain_text
+            combined_text = sender + "\n" + "Send date/time: " + sent_time + "\n" + subject + "\n" + "Email link: " + outlook_link + "\n" + plain_text
             email_list.append(combined_text)
             print(str(message_number)+ ". " + combined_text)
             print("___________________________________________________________________")
@@ -126,7 +127,31 @@ def get_calendar_service():
     return build("calendar", "v3", credentials=creds)
 
 
-def create_event(event_data, service):
+def get_or_create_calendar(service, calendar_name="Calendar Assistant"):
+    """
+    Check if a calendar with `calendar_name` exists.
+    If yes, return its calendarId.
+    If not, create it and return the new calendarId.
+    """
+    # List all calendars
+    calendar_list = service.calendarList().list().execute()
+    
+    for calendar_entry in calendar_list.get("items", []):
+        if calendar_entry.get("summary") == calendar_name:
+            print(f"Found existing calendar: {calendar_name}")
+            return calendar_entry["id"]
+    
+    # If not found, create a new calendar
+    new_calendar = {
+        "summary": calendar_name,
+        "timeZone": "America/Chicago"
+    }
+    created = service.calendars().insert(body=new_calendar).execute()
+    print(f"Created new calendar: {calendar_name}")
+    return created["id"]
+
+
+def create_event(event_data, service, calendar_id="primary"):
 
     start_time = event_data.get("start_time") or "09:00"
     end_time   = event_data.get("end_time")   or "10:00"
@@ -151,9 +176,16 @@ def create_event(event_data, service):
         "start": {"dateTime": start_str, "timeZone": "America/Chicago"},
         "end": {"dateTime": end_str, "timeZone": "America/Chicago"},
     }
+    if event["description"].startswith("JUNK"):
+        print("Skipping junk event:", event_data)
+        return
     
-    created_event = service.events().insert(calendarId="primary", body=event).execute()
-    print("Event created:", created_event.get("htmlLink"))
+    created_event = service.events().insert(calendarId=calendar_id, body=event).execute()
+    #get the title of the created event
+    print ("\n")
+    print("Event created " + created_event.get("summary", "Untitled") + ": ", created_event.get("htmlLink"))
+    print ("\n")
+
 
 def extract_json(text):
     # Find the first JSON object or array
@@ -197,14 +229,15 @@ def extract_json(text):
 if __name__ == "__main__":
     TENANT_ID = os.getenv("TENANT_ID")
     CLIENT_ID = os.getenv("CLIENT_ID")
+    service = get_calendar_service()
 
+    calendar_id = get_or_create_calendar(service, "Calendar Assistant")
     amount = input("How many emails do you want to fetch? (1-25): ")
     if amount.isdigit():
         amount = int(amount) if int(amount) > 0 and int(amount) <= 25 else 5
         emails = fetch_emails(TENANT_ID, CLIENT_ID, amount)
 
         event_jsons = []
-        service = get_calendar_service()
         for email in emails:
             event_jsons.append(parse_email_content(email))
 
@@ -213,9 +246,11 @@ if __name__ == "__main__":
                 continue
             for e in event_json["events"]:
                 if not e.get("title") or not e.get("start_date"):
+                    print ("\n")
                     print("Skipping incomplete event:", e)
+                    print ("\n")
                     continue
-                create_event(e, service)
+                create_event(e, service, calendar_id)
     elif amount.lower() == "custom":
         custom_event = input("Enter your custom event description: ")
         # current time and date to help with parsing
@@ -232,4 +267,4 @@ if __name__ == "__main__":
                 if not e.get("title") or not e.get("start_date"):
                     print("Skipping incomplete event:", e)
                     continue
-                create_event(e, service)
+                create_event(e, service, calendar_id)

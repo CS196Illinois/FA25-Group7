@@ -69,9 +69,13 @@ Description:
 
 Include room numbers, additional location details, meeting links, attendee lists, and agenda items.
 
+at the bottom have a "Link to Original Email: " with the email link provided
+
 Preserve URLs and email addresses.
 
-Set to null if no additional details exist.
+Set to same as title if no additional details exist.
+
+If the event does not seem like something that would be added to a personal calander explicitly add the keyword "JUNK" to the begining of the description
 
 Missing Information:
 
