@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import re
+import os
 from playwright.sync_api import sync_playwright 
 from datetime import datetime, timedelta
+import re
 
 # Variables & Constants
 global event_count
@@ -106,7 +108,8 @@ def get_general_event_info(link: str):
 
     # Cleanup
     for key in event_info:
-        event_info[key] = event_info[key].strip()
+        if isinstance(event_info[key], str):
+            event_info[key] = event_info[key].strip()
     
     return event_info
 
@@ -161,6 +164,7 @@ def scrape_general():
     for calendar_link in GENERAL_CALENDAR_LINKS:
         print(f"Scraping: {calendar_link}")
         # Scrapes the calendar page
+        #link = calendar.find("a").attrs["href"]
         html_text = requests.get(calendar_link).text
         soup = BeautifulSoup(html_text, "lxml")
         event_listings = soup.find_all("div", class_="title")
@@ -302,6 +306,15 @@ def main():
     with open("events.json", "w", encoding="utf-8") as file:
         json.dump(combined_json_data, file, indent=4, ensure_ascii=False)
     print(f"Scraped a total of {event_count} events! Results can be found in events.json")
+
+    # Create "last_scraped.txt" if it doesn't exist
+    output_folder = "Project"  
+    os.makedirs(output_folder, exist_ok=True)
+    output_path = os.path.join(output_folder, "last_scraped.txt")
+
+    # Write current UTC time into "last_scraped.txt"
+    with open(output_path, "w") as f:
+        f.write(f"Last scraped at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC\n")
 
 if __name__ == "__main__":
     main()
