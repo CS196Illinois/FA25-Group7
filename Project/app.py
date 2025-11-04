@@ -4,14 +4,14 @@ import json, os
 
 app = Flask(__name__)
 
-DATA_FILE = "events.json"
+DATA_FILE = os.path.join(os.path.dirname(__file__), "json/events.json")
 
 # Load events
 def load_events():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             return json.load(f)
-    return []
+    return {}
 
 # Save events
 def save_events(events):
@@ -20,7 +20,8 @@ def save_events(events):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    events = load_events()
+    return render_template("index.html", events=events)
 
 @app.route("/events", methods=["GET"])
 def get_events():

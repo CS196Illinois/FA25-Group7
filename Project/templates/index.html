@@ -37,6 +37,17 @@
       <h3>Upcoming Events</h3>
       <div id="upcoming-events" class="upcoming-container"></div>
     </section>
+
+    <section class="browse-section">
+      <h3>Browse Events</h3>
+      <ul id="browse-events" class="browse-container">
+        {% for event_id, event in events.items() %}
+            <li id="event{{event_id}}">
+                {{event.title}}
+            </li>
+        {% endfor %}
+        </ul>
+    </section>
   </div>
 
   <!-- Add Event Modal -->
