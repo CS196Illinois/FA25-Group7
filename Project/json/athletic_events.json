@@ -1,5 +1,5 @@
 {
-    "8": {
+    "40": {
         "title": "Football Game: Illinois VS. Western Illinois",
         "description": "",
         "tag": "Athletics",
@@ -7,11 +7,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Aug 29, 2025",
         "end_date": "Aug 29, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "9": {
+    "41": {
         "title": "Football Game: Illinois VS. Western Michigan",
         "description": "",
         "tag": "Athletics",
@@ -19,11 +19,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Sep 13, 2025",
         "end_date": "Sep 13, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "10": {
+    "42": {
         "title": "Football Game: Illinois VS. USC",
         "description": "",
         "tag": "Athletics",
@@ -31,11 +31,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Sep 27, 2025",
         "end_date": "Sep 27, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "02:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "11": {
+    "43": {
         "title": "Football Game: Illinois VS. Ohio State",
         "description": "",
         "tag": "Athletics",
@@ -43,11 +43,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Oct 11, 2025",
         "end_date": "Oct 11, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "02:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "12": {
+    "44": {
         "title": "Football Game: Illinois VS. Rutgers",
         "description": "",
         "tag": "Athletics",
@@ -55,11 +55,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Nov 1, 2025",
         "end_date": "Nov 1, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "02:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "13": {
+    "45": {
         "title": "Football Game: Illinois VS. Maryland",
         "description": "",
         "tag": "Athletics",
@@ -67,11 +67,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Nov 15, 2025",
         "end_date": "Nov 15, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "2:00 pm",
+        "end_time": "05:00 PM",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "14": {
+    "46": {
         "title": "Football Game: Illinois VS. Northwestern",
         "description": "",
         "tag": "Athletics",
@@ -79,11 +79,11 @@
         "event_link": "https://fightingillini.com/sports/football/schedule",
         "start_date": "Nov 29, 2025",
         "end_date": "Nov 29, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "2:00 pm",
         "location": "Gies Memorial Stadium, Champaign, Ill."
     },
-    "15": {
+    "47": {
         "title": "Men's Basketball Game: Illinois VS. Illinois State",
         "description": "",
         "tag": "Athletics",
@@ -91,11 +91,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Oct 19, 2025",
         "end_date": "Oct 19, 2025",
-        "start_time": "2:00 PM",
+        "start_time": "2:00 pm",
         "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "16": {
+    "48": {
         "title": "Men's Basketball Game: Illinois VS. Jackson State",
         "description": "",
         "tag": "Athletics",
@@ -103,11 +103,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Nov 3, 2025",
         "end_date": "Nov 3, 2025",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "17": {
+    "49": {
         "title": "Men's Basketball Game: Illinois VS. Florida Gulf Coast",
         "description": "",
         "tag": "Athletics",
@@ -115,11 +115,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Nov 7, 2025",
         "end_date": "Nov 7, 2025",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "18": {
+    "50": {
         "title": "Men's Basketball Game: Illinois VS. Texas Tech",
         "description": "",
         "tag": "Athletics",
@@ -127,11 +127,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Nov 11, 2025",
         "end_date": "Nov 11, 2025",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "19": {
+    "51": {
         "title": "Men's Basketball Game: Illinois VS. Colgate",
         "description": "",
         "tag": "Athletics",
@@ -139,11 +139,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Nov 14, 2025",
         "end_date": "Nov 14, 2025",
-        "start_time": "7:00 PM",
-        "end_time": "10:00 PM",
+        "start_time": "8:00 pm",
+        "end_time": "11:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "20": {
+    "52": {
         "title": "Men's Basketball Game: Illinois VS. Long Island",
         "description": "",
         "tag": "Athletics",
@@ -155,7 +155,7 @@
         "end_time": "10:00 pm",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "21": {
+    "53": {
         "title": "Men's Basketball Game: Illinois VS. UT Rio Grande Valley",
         "description": "",
         "tag": "Athletics",
@@ -163,11 +163,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Nov 24, 2025",
         "end_date": "Nov 24, 2025",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "22": {
+    "54": {
         "title": "Men's Basketball Game: Illinois VS. Nebraska",
         "description": "",
         "tag": "Athletics",
@@ -175,11 +175,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Dec 13, 2025",
         "end_date": "Dec 13, 2025",
-        "start_time": "3:00 PM",
+        "start_time": "3:00 pm",
         "end_time": "06:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "23": {
+    "55": {
         "title": "Men's Basketball Game: Illinois VS. Southern",
         "description": "",
         "tag": "Athletics",
@@ -187,11 +187,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Dec 29, 2025",
         "end_date": "Dec 29, 2025",
-        "start_time": "2:00 PM",
+        "start_time": "2:00 pm",
         "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "24": {
+    "56": {
         "title": "Men's Basketball Game: Illinois VS. Rutgers",
         "description": "",
         "tag": "Athletics",
@@ -199,11 +199,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Jan 8, 2026",
         "end_date": "Jan 8, 2026",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "25": {
+    "57": {
         "title": "Men's Basketball Game: Illinois VS. Minnesota",
         "description": "",
         "tag": "Athletics",
@@ -211,11 +211,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Jan 17, 2026",
         "end_date": "Jan 17, 2026",
-        "start_time": "11:00 AM",
+        "start_time": "11:00 am",
         "end_time": "02:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "26": {
+    "58": {
         "title": "Men's Basketball Game: Illinois VS. Maryland",
         "description": "",
         "tag": "Athletics",
@@ -223,11 +223,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Jan 21, 2026",
         "end_date": "Jan 21, 2026",
-        "start_time": "6:00 PM",
+        "start_time": "6:00 pm",
         "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "27": {
+    "59": {
         "title": "Men's Basketball Game: Illinois VS. Washington",
         "description": "",
         "tag": "Athletics",
@@ -235,11 +235,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Jan 29, 2026",
         "end_date": "Jan 29, 2026",
-        "start_time": "8:00 PM",
+        "start_time": "8:00 pm",
         "end_time": "11:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "28": {
+    "60": {
         "title": "Men's Basketball Game: Illinois VS. Northwestern",
         "description": "",
         "tag": "Athletics",
@@ -247,11 +247,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Feb 4, 2026",
         "end_date": "Feb 4, 2026",
-        "start_time": "8:00 PM",
+        "start_time": "8:00 pm",
         "end_time": "11:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "29": {
+    "61": {
         "title": "Men's Basketball Game: Illinois VS. Wisconsin",
         "description": "",
         "tag": "Athletics",
@@ -259,11 +259,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Feb 10, 2026",
         "end_date": "Feb 10, 2026",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "30": {
+    "62": {
         "title": "Men's Basketball Game: Illinois VS. Indiana",
         "description": "",
         "tag": "Athletics",
@@ -271,11 +271,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Feb 15, 2026",
         "end_date": "Feb 15, 2026",
-        "start_time": "12:00 PM",
+        "start_time": "12:00 pm",
         "end_time": "03:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "31": {
+    "63": {
         "title": "Men's Basketball Game: Illinois VS. Michigan",
         "description": "",
         "tag": "Athletics",
@@ -283,11 +283,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Feb 27, 2026",
         "end_date": "Feb 27, 2026",
-        "start_time": "7:00 PM",
+        "start_time": "7:00 pm",
         "end_time": "10:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "32": {
+    "64": {
         "title": "Men's Basketball Game: Illinois VS. Oregon",
         "description": "",
         "tag": "Athletics",
@@ -295,11 +295,11 @@
         "event_link": "https://fightingillini.com/sports/mens-basketball/schedule",
         "start_date": "Mar 3, 2026",
         "end_date": "Mar 3, 2026",
-        "start_time": "8:00 PM",
+        "start_time": "8:00 pm",
         "end_time": "11:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "33": {
+    "65": {
         "title": "Women's Basketball Game: Illinois VS. Maryville (EXH)",
         "description": "",
         "tag": "Athletics",
@@ -307,11 +307,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Oct 30, 2025",
         "end_date": "Oct 30, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "34": {
+    "66": {
         "title": "Women's Basketball Game: Illinois VS. SEMO",
         "description": "",
         "tag": "Athletics",
@@ -319,11 +319,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Nov 4, 2025",
         "end_date": "Nov 4, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "35": {
+    "67": {
         "title": "Women's Basketball Game: Illinois VS. Illinois State",
         "description": "",
         "tag": "Athletics",
@@ -331,11 +331,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Nov 9, 2025",
         "end_date": "Nov 9, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "12:00 pm",
+        "end_time": "03:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "36": {
+    "68": {
         "title": "Women's Basketball Game: Illinois VS. Murray State",
         "description": "",
         "tag": "Athletics",
@@ -343,11 +343,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Nov 18, 2025",
         "end_date": "Nov 18, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "02:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "37": {
+    "69": {
         "title": "Women's Basketball Game: Illinois VS. Western Kentucky",
         "description": "",
         "tag": "Athletics",
@@ -355,11 +355,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Nov 26, 2025",
         "end_date": "Nov 26, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "38": {
+    "70": {
         "title": "Women's Basketball Game: Illinois VS. Le Moyne",
         "description": "",
         "tag": "Athletics",
@@ -367,11 +367,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Nov 30, 2025",
         "end_date": "Nov 30, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "2:00 pm",
+        "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "39": {
+    "71": {
         "title": "Women's Basketball Game: Illinois VS. Bellarmine",
         "description": "",
         "tag": "Athletics",
@@ -379,11 +379,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Dec 2, 2025",
         "end_date": "Dec 2, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "40": {
+    "72": {
         "title": "Women's Basketball Game: Illinois VS. Indiana",
         "description": "",
         "tag": "Athletics",
@@ -391,11 +391,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Dec 6, 2025",
         "end_date": "Dec 6, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "11:00 am",
+        "end_time": "02:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "41": {
+    "73": {
         "title": "Women's Basketball Game: Illinois VS. North Texas",
         "description": "",
         "tag": "Athletics",
@@ -403,11 +403,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Dec 14, 2025",
         "end_date": "Dec 14, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "2:00 pm",
+        "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "42": {
+    "74": {
         "title": "Women's Basketball Game: Illinois VS. Jackson State",
         "description": "",
         "tag": "Athletics",
@@ -415,11 +415,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Dec 19, 2025",
         "end_date": "Dec 19, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "43": {
+    "75": {
         "title": "Women's Basketball Game: Illinois VS. Maryland",
         "description": "",
         "tag": "Athletics",
@@ -427,11 +427,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Jan 1, 2026",
         "end_date": "Jan 1, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "3:00 pm",
+        "end_time": "06:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "44": {
+    "76": {
         "title": "Women's Basketball Game: Illinois VS. Ohio State",
         "description": "",
         "tag": "Athletics",
@@ -439,11 +439,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Jan 7, 2026",
         "end_date": "Jan 7, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "45": {
+    "77": {
         "title": "Women's Basketball Game: Illinois VS. Northwestern",
         "description": "",
         "tag": "Athletics",
@@ -451,11 +451,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Jan 18, 2026",
         "end_date": "Jan 18, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "2:00 pm",
+        "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "46": {
+    "78": {
         "title": "Women's Basketball Game: Illinois VS. UCLA",
         "description": "",
         "tag": "Athletics",
@@ -463,11 +463,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Jan 28, 2026",
         "end_date": "Jan 28, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "47": {
+    "79": {
         "title": "Women's Basketball Game: Illinois VS. USC",
         "description": "",
         "tag": "Athletics",
@@ -475,11 +475,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Feb 8, 2026",
         "end_date": "Feb 8, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "12:00 pm",
+        "end_time": "03:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "48": {
+    "80": {
         "title": "Women's Basketball Game: Illinois VS. Wisconsin",
         "description": "",
         "tag": "Athletics",
@@ -487,11 +487,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Feb 11, 2026",
         "end_date": "Feb 11, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "49": {
+    "81": {
         "title": "Women's Basketball Game: Illinois VS. Rutgers",
         "description": "",
         "tag": "Athletics",
@@ -499,11 +499,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Feb 17, 2026",
         "end_date": "Feb 17, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "50": {
+    "82": {
         "title": "Women's Basketball Game: Illinois VS. Minnesota",
         "description": "",
         "tag": "Athletics",
@@ -511,11 +511,11 @@
         "event_link": "https://fightingillini.com/sports/womens-basketball/schedule",
         "start_date": "Mar 1, 2026",
         "end_date": "Mar 1, 2026",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "2:00 pm",
+        "end_time": "05:00 PM",
         "location": "State Farm Center, Champaign, Ill."
     },
-    "51": {
+    "83": {
         "title": "Volleyball Game: Illinois VS. Iowa State",
         "description": "",
         "tag": "Athletics",
@@ -523,11 +523,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Sep 20, 2025",
         "end_date": "Sep 20, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "5:00 pm",
+        "end_time": "08:00 PM",
         "location": "Huff Hall"
     },
-    "52": {
+    "84": {
         "title": "Volleyball Game: Illinois VS. Eastern Illinois",
         "description": "",
         "tag": "Athletics",
@@ -535,11 +535,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Sep 21, 2025",
         "end_date": "Sep 21, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "1:00 pm",
+        "end_time": "04:00 PM",
         "location": "Huff Hall"
     },
-    "53": {
+    "85": {
         "title": "Volleyball Game: Illinois VS. Oregon",
         "description": "",
         "tag": "Athletics",
@@ -547,11 +547,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Sep 26, 2025",
         "end_date": "Sep 26, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "8:00 pm",
+        "end_time": "11:00 PM",
         "location": "Huff Hall"
     },
-    "54": {
+    "86": {
         "title": "Volleyball Game: Illinois VS. Michigan State",
         "description": "",
         "tag": "Athletics",
@@ -559,11 +559,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Oct 5, 2025",
         "end_date": "Oct 5, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "1:00 pm",
+        "end_time": "04:00 PM",
         "location": "Huff Hall"
     },
-    "55": {
+    "87": {
         "title": "Volleyball Game: Illinois VS. Purdue",
         "description": "",
         "tag": "Athletics",
@@ -572,10 +572,10 @@
         "start_date": "Oct 24, 2025",
         "end_date": "Oct 24, 2025",
         "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "end_time": "10:00 PM",
         "location": "Huff Hall"
     },
-    "56": {
+    "88": {
         "title": "Volleyball Game: Illinois VS. Michigan",
         "description": "",
         "tag": "Athletics",
@@ -584,10 +584,10 @@
         "start_date": "Oct 25, 2025",
         "end_date": "Oct 25, 2025",
         "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "end_time": "10:00 PM",
         "location": "Huff Hall"
     },
-    "57": {
+    "89": {
         "title": "Volleyball Game: Illinois VS. Iowa",
         "description": "",
         "tag": "Athletics",
@@ -595,11 +595,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Nov 2, 2025",
         "end_date": "Nov 2, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "1:00 pm",
+        "end_time": "04:00 PM",
         "location": "Huff Hall"
     },
-    "58": {
+    "90": {
         "title": "Volleyball Game: Illinois VS. Penn State",
         "description": "",
         "tag": "Athletics",
@@ -607,11 +607,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Nov 9, 2025",
         "end_date": "Nov 9, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "3:00 pm",
+        "end_time": "06:00 PM",
         "location": "Huff Hall"
     },
-    "59": {
+    "91": {
         "title": "Volleyball Game: Illinois VS. Washington",
         "description": "",
         "tag": "Athletics",
@@ -619,11 +619,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Nov 14, 2025",
         "end_date": "Nov 14, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "6:00 pm",
+        "end_time": "09:00 PM",
         "location": "Huff Hall"
     },
-    "60": {
+    "92": {
         "title": "Volleyball Game: Illinois VS. Wisconsin",
         "description": "",
         "tag": "Athletics",
@@ -631,11 +631,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Nov 15, 2025",
         "end_date": "Nov 15, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "8:00 pm",
+        "end_time": "11:00 PM",
         "location": "Huff Hall"
     },
-    "61": {
+    "93": {
         "title": "Volleyball Game: Illinois VS. Indiana",
         "description": "",
         "tag": "Athletics",
@@ -643,11 +643,11 @@
         "event_link": "https://fightingillini.com/sports/womens-volleyball/schedule",
         "start_date": "Nov 26, 2025",
         "end_date": "Nov 26, 2025",
-        "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "start_time": "8:00 pm",
+        "end_time": "11:00 PM",
         "location": "Huff Hall"
     },
-    "62": {
+    "94": {
         "title": "Volleyball Game: Illinois VS. Northwestern",
         "description": "",
         "tag": "Athletics",
@@ -656,7 +656,7 @@
         "start_date": "Nov 28, 2025",
         "end_date": "Nov 28, 2025",
         "start_time": "7:00 pm",
-        "end_time": "10:00 pm",
+        "end_time": "10:00 PM",
         "location": "Huff Hall"
     }
 }
