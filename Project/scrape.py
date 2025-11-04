@@ -279,38 +279,32 @@ def main():
     event_count = 0
     combined_json_data = {}
 
-    scrape_sf = input("Do you want to scrape State Farm Center events? (y/n) ")
-    if scrape_sf == "y":
-        json_data_state_farm = scrape_state_farm()
-        combined_json_data = combined_json_data | json_data_state_farm
-        with open("state_farm_events.json", "w", encoding="utf-8") as file:
-            json.dump(json_data_state_farm, file, indent=4, ensure_ascii=False)
-        print("Scraped State Farm Center event data! Results can be found in state_farm_events.json")
+    json_data_state_farm = scrape_state_farm()
+    combined_json_data = combined_json_data | json_data_state_farm
+    with open("state_farm_events.json", "w", encoding="utf-8") as file:
+        json.dump(json_data_state_farm, file, indent=4, ensure_ascii=False)
+    print("Scraped State Farm Center event data! Results can be found in state_farm_events.json")
 
-    scrape_ath = input("Do you want to scrape Athletic events? (y/n) ")
-    if scrape_ath == "y":
-        json_data_athletics = scrape_athletics()
-        combined_json_data = combined_json_data | json_data_athletics
-        with open("athletic_events.json", "w", encoding="utf-8") as file:
-            json.dump(json_data_athletics, file, indent=4, ensure_ascii=False)
-        print("Scraped Athletics event data! Results can be found in athletic_events.json")
+    json_data_athletics = scrape_athletics()
+    combined_json_data = combined_json_data | json_data_athletics
+    with open("athletic_events.json", "w", encoding="utf-8") as file:
+        json.dump(json_data_athletics, file, indent=4, ensure_ascii=False)
+    print("Scraped Athletics event data! Results can be found in athletic_events.json")
 
-    scrape_gen = input("Do you want to scrape General events? (y/n) ")
-    if scrape_gen == "y":
-        json_data_general = scrape_general()
-        combined_json_data = combined_json_data | json_data_general
-        with open("general_events.json", "w", encoding="utf-8") as file:
-            json.dump(json_data_general, file, indent=4, ensure_ascii=False)
-        print("Scraped General event data! Results can be found in general_events.json")
+    """
+    json_data_general = scrape_general()
+    combined_json_data = combined_json_data | json_data_general
+    with open("general_events.json", "w", encoding="utf-8") as file:
+        json.dump(json_data_general, file, indent=4, ensure_ascii=False)
+    print("Scraped General event data! Results can be found in general_events.json")
+    """
     
     with open("events.json", "w", encoding="utf-8") as file:
         json.dump(combined_json_data, file, indent=4, ensure_ascii=False)
     print(f"Scraped a total of {event_count} events! Results can be found in events.json")
 
     # Create "last_scraped.txt" if it doesn't exist
-    output_folder = "Project"  
-    os.makedirs(output_folder, exist_ok=True)
-    output_path = os.path.join(output_folder, "last_scraped.txt")
+    output_path = os.path.join("/", "last_scraped.txt")
 
     # Write current UTC time into "last_scraped.txt"
     with open(output_path, "w") as f:
