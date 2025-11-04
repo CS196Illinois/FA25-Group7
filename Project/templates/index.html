@@ -43,7 +43,17 @@
       <ul id="browse-events" class="browse-container">
         {% for event_id, event in events.items() %}
             <li id="event{{event_id}}">
-                {{event.title}}
+                <b>{{event.title}}</b>
+                <ul>
+                    <li>Description: {{event.description}}</li>
+                    <li>Location: {{event.location}}</li>
+                    <li>Start Date: {{event.start_date}}</li>
+                    <li>End Date: {{event.end_date}}</li>
+                    <li>Start Time: {{event.start_time}}</li>
+                    <li>End Time: {{event.end_time}}</li>
+                    <li>Host: {{event.host}}</li>
+                    <li>Tag: {{event.tag}}</li>
+                </ul>
             </li>
         {% endfor %}
         </ul>
