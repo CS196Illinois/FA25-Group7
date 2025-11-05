@@ -78,6 +78,10 @@ h1 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+#events-list {
+    overflow-y: scroll;
+}
+
 .event-card {
   background: #e8f0fe;
   padding: 10px;
