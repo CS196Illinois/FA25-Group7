@@ -1,11 +1,13 @@
+#-----------------------IMPORTS & VARIABLES-----------------------#
 # Imports
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-import json
+import modal
 import os
 from playwright.sync_api import sync_playwright 
 import re
 import requests
+from supabase import create_client
 
 # Variables & Constants
 global event_count
@@ -28,22 +30,7 @@ ATHLETIC_TICKET_LINKS = [
     "https://fightingillini.com/sports/womens-basketball/schedule",
     "https://fightingillini.com/sports/womens-volleyball/schedule"
 ]
-
-# Helper Functions
-def upload_json_file(data, filename):
-    # Get the normalized path to the json folder
-    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-    JSON_DIR = os.path.join(SCRIPT_DIR, "..", "json")
-    JSON_DIR = os.path.normpath(JSON_DIR)
-
-    # Ensure the json folder exists; if not, create it
-    os.makedirs(JSON_DIR, exist_ok=True)
-
-    # Place the created json file into the json folder
-    output_file = os.path.join(JSON_DIR, f"{filename}.json")
-    with open(output_file, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
-
+#-----------------------SCRAPERS-----------------------#
 # Individual Scrapers
 def scrape_general():
     global event_count
@@ -292,29 +279,60 @@ def scrape():
     global event_count
     event_count = 0
     combined_json_data = {}
-    """
+
     json_data_state_farm = scrape_state_farm()
     combined_json_data = combined_json_data | json_data_state_farm
-    upload_json_file(json_data_state_farm, "state_farm_events")
 
     json_data_athletics = scrape_athletics()
     combined_json_data = combined_json_data | json_data_athletics
-    upload_json_file(json_data_athletics, "athletic_events")
-    """
+
     json_data_general = scrape_general()
     combined_json_data = combined_json_data | json_data_general
-    upload_json_file(json_data_general, "general_events")
+
+    return combined_json_data
+#-----------------------AUTO SCRAPE-----------------------#
+# Creates the modal app
+app = modal.App("weekly-scraper")
+
+# Install everything from requirements.txt
+image = (
+    modal.Image.debian_slim().
+    pip_install_from_requirements("requirements.txt").
+    run_commands("playwright install --with-deps chromium")
+)
+
+@app.function(
+    schedule=modal.Cron("0 9 * * 1"),  # Every Monday at 9 AM UTC
+    image=image,
+    secrets=[modal.Secret.from_name("supabase-creds")] # Gets our Supabase URL and Service key from our secrets
+)
+
+def run_scraper():    
+    print("Connecting to Supabase...")
+
+    # Creates the client with our credentials
+    supabase = create_client(
+        os.environ['SUPABASE_URL'],
+        os.environ['SUPABASE_SERVICE_KEY']
+    ) 
     
-    upload_json_file(combined_json_data, "events")
+    # Run the scrape function from scrape.py
+    print("Running scraper...")
+    scraped_data = scrape()
+    print(f"Scraper completed!")
 
-    # Create "last_scraped.txt" in the same folder as scrape.py
-    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last_scraped.txt")
+    # Save to Supabase data table
+    response = supabase.table('scraped_event_data').insert({
+        'data': scraped_data
+    }).execute()
+    
+    # Success message
+    print(f"✅ Data saved to Supabase! ID: {response.data[0]['id']}")
+#-----------------------LOCAL TESTS-----------------------#
+@app.local_entrypoint()
+def test():
+    run_scraper.remote()
 
-    # Write current UTC time into "last_scraped.txt"
-    with open(output_path, "w") as f:
-        f.write(f"Scraped a total of {event_count} events; last scraped at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} UTC\n")
-
-# Main Function
 def main():
     scrape()
 
