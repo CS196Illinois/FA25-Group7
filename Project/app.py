@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-from Project.scrape import scrape
 import json, os
 
 app = Flask(__name__)
