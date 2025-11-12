@@ -11,8 +11,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderCalendar() {
     grid.innerHTML = "";
-    const monthName = today.toLocaleString("default", { month: "long" });
+    const date = new Date(currentYear, currentMonth);
+    const monthName = date.toLocaleString("default", { month: "long" });
     monthYear.textContent = `${monthName} ${currentYear}`;
+
+    // Add day headers
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    days.forEach(day => {
+      const header = document.createElement("div");
+      header.textContent = day;
+      header.style.fontWeight = "bold";
+      header.style.textAlign = "center";
+      grid.appendChild(header);
+    });
 
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -26,28 +37,35 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const cell = document.createElement("div");
       cell.textContent = day;
-      if (day === today.getDate() && currentMonth === today.getMonth())
+      if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear())
         cell.classList.add("active");
       grid.appendChild(cell);
     }
   }
 
-  async function loadEvents() {
-    const res = await fetch("/events");
-    const events = await res.json();
-    eventsList.innerHTML = "";
-    upcoming.innerHTML = "";
-    events.forEach(e => {
-      const div = document.createElement("div");
-      div.classList.add("event-card");
-      div.innerHTML = `<b>${e.title}</b><br>${e.time}<br>${e.location}`;
-      eventsList.appendChild(div);
+  // Month navigation
+  const prevButton = document.getElementById("prev-month");
+  const nextButton = document.getElementById("next-month");
 
-      const card = document.createElement("div");
-      card.classList.add("upcoming-card");
-      card.classList.add(e.color || "green");
-      card.innerHTML = `<h4>${e.title}</h4><p>${e.date}</p><p>${e.time}</p>`;
-      upcoming.appendChild(card);
+  if (prevButton) {
+    prevButton.addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar();
+    });
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar();
     });
   }
 
@@ -73,16 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
       location,
     };
 
-    await fetch("/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(event)
-    });
+    // TODO: Put event data in user's google calendar
 
     modal.style.display = "none";
-    loadEvents();
   });
 
   renderCalendar();
-  loadEvents();
 });

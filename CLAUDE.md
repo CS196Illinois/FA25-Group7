@@ -55,9 +55,9 @@ First run will prompt for OAuth authentication. Requires `credentials.json` from
 
 **Flask Backend ([app.py](Project/app.py))**
 - Serves the web interface via Jinja2 templating
-- Provides REST API at `/events` (GET returns all events, POST adds new events)
-- Reads/writes event data to/from local [json/events.json](Project/json/events.json)
-- Note: Flask app still uses local JSON; scrapers now send to Supabase separately
+- Provides REST API at `/events` (GET returns all events from Supabase)
+- Reads event data directly from Supabase `scraped_event_data` table (latest entry)
+- Uses environment variables from `.env` file for Supabase credentials
 
 **Web Scrapers ([scrape.py](Project/scrape.py))**
 Three independent scrapers collect events:
@@ -79,39 +79,57 @@ The scraper is now integrated with Modal for serverless execution:
 
 **Template ([templates/index.html](Project/templates/index.html))**
 Single-page interface with:
-- Calendar grid with month/year navigation
+- Calendar grid with month/year navigation using arrow buttons (← →)
+- Day-of-week headers (Sun-Sat) for better calendar readability
 - Events panel for selected day
 - Upcoming events section (horizontal list)
-- Browse events section (shows all scraped events)
+- Browse events section with search/filter capabilities
+- Event detail modal (800px wide) for comprehensive event information
 - Add event modal form
 
 **JavaScript ([static/script.js](Project/static/script.js))**
 Handles:
-- Calendar rendering and day selection
+- Calendar rendering with dynamic month/year (fixes to use current view instead of constant today)
+- Month navigation with arrow buttons
 - Event loading via `/events` API
 - Event creation (POST to `/events`)
 - Modal interactions
+- Current day highlighting
+
+**JavaScript ([static/browse-events.js](Project/static/browse-events.js))**
+Dedicated module for browse events section:
+- Chronological event sorting by date and time (bubble sort)
+- Client-side filtering to hide past events
+- Search functionality across title, description, and location
+- Category/tag filtering
+- "All Day" display for events running 12:00 AM - 11:59 PM
+- Event detail modal with full information display
+- Dynamic event card generation
 
 **Styling ([static/style.css](Project/static/style.css))**
-Clean, modern design with flexbox layout and color-coded event categories.
+Clean, modern design with:
+- Flexbox and CSS Grid layouts
+- Styled month control buttons with hover effects
+- Responsive event cards in browse section
+- Wide detail modal (800px) for better readability
+- Color-coded event categories
+- Smooth transitions and hover states
 
 ### Data Flow
 
 ```
 Web Sources → scrape.py (via Modal) → Supabase (scraped_event_data table)
-
-                            Local JSON files (json/*.json)
-                                      ↓
-                                   app.py → Frontend
-                                      ↓
-                         (optional) add_scraped_events.py → Google Calendar
+                                              ↓
+                                           app.py → Frontend (dynamic event cards)
+                                              ↓
+                              (optional) add_scraped_events.py → Google Calendar
 ```
 
-**Important architectural note:** The scrapers now send data to Supabase via Modal scheduled runs, but the Flask app ([app.py](Project/app.py)) still reads from local JSON files ([json/events.json](Project/json/events.json)). This means there are two separate data stores:
-1. **Supabase** - Cloud storage for scraped events (written by Modal)
-2. **Local JSON** - Used by Flask app for serving the web interface
-
-The local JSON files may need to be manually synced with Supabase data, or the Flask app could be updated to read from Supabase instead.
+**Architecture:** The complete data pipeline is now unified through Supabase:
+1. **Modal scraper** runs weekly, scrapes 1000+ events, stores in Supabase
+2. **Flask backend** reads latest scraped data from Supabase on each request
+3. **Frontend** dynamically renders event cards with search/filter capabilities
+4. **No local JSON files** - all data flows through Supabase
 
 ### Calendar Integration
 
@@ -119,17 +137,40 @@ The local JSON files may need to be manually synced with Supabase data, or the F
 
 ## Key Files
 
-- [Project/app.py](Project/app.py) - Flask web server
-- [Project/scrape.py](Project/scrape.py) - All web scraping logic
-- [Project/json/events.json](Project/json/events.json) - Master events file (~1MB)
+- [Project/app.py](Project/app.py) - Flask web server with Supabase integration
+- [Project/scrape.py](Project/scrape.py) - All web scraping logic with Modal scheduling
 - [Project/templates/index.html](Project/templates/index.html) - Main HTML template
-- [Project/static/script.js](Project/static/script.js) - Frontend interactivity
+- [Project/static/script.js](Project/static/script.js) - Calendar rendering and navigation
+- [Project/static/browse-events.js](Project/static/browse-events.js) - Event browsing, sorting, and filtering
+- [Project/static/style.css](Project/static/style.css) - Complete application styling
 - [Project/calendar/add_scraped_events.py](Project/calendar/add_scraped_events.py) - Google Calendar sync
+- [Project/.env](Project/.env) - Supabase credentials (not committed to git)
 
 ## Technology Stack
 
-- **Backend:** Flask, BeautifulSoup4, Playwright, Requests, Supabase client
-- **Frontend:** Vanilla HTML/CSS/JavaScript (no frameworks)
-- **Storage:** Supabase (cloud, for scraped data) + JSON files (local, for Flask app)
-- **Scheduling:** Modal (serverless cron jobs)
+- **Backend:** Flask, BeautifulSoup4, Playwright, Requests, Supabase client, python-dotenv
+- **Frontend:** Vanilla HTML/CSS/JavaScript (no frameworks, simple syntax for intro CS context)
+- **Storage:** Supabase (cloud PostgreSQL for all scraped event data)
+- **Scheduling:** Modal (serverless cron jobs, runs weekly on Mondays)
 - **APIs:** Google Calendar API (OAuth2)
+
+## Recent Updates
+
+### Event Display Improvements
+- Implemented chronological sorting of events by date and time
+- Added client-side filtering to automatically hide past events
+- Display "All Day" for events spanning full day (12:00 AM - 11:59 PM)
+- Increased detail modal width to 800px for better content display
+
+### Calendar Enhancements
+- Fixed calendar rendering to use dynamic month/year instead of static today
+- Added day-of-week headers (Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+- Implemented functional month navigation with arrow buttons (← →)
+- Added styled button controls with hover effects
+- Current day highlighting works correctly across month changes
+
+### Code Quality
+- Created modular browse-events.js for event browsing functionality
+- Added safety checks for DOM element existence before event listeners
+- Fixed event data structure to use start_date/start_time/end_time fields consistently
+- Removed deprecated local JSON files (now using Supabase exclusively)
