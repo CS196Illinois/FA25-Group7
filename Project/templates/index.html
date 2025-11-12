@@ -20,9 +20,9 @@
     <section class="calendar-section">
       <div class="calendar-container">
         <div class="month-controls">
-          <button id="prev-month"></button>
+          <button id="prev-month">←</button>
           <h2 id="month-year"></h2>
-          <button id="next-month"></button>
+          <button id="next-month">→</button>
         </div>
         <div class="calendar-grid" id="calendar-grid"></div>
       </div>
@@ -39,25 +39,54 @@
     </section>
 
     <section class="browse-section">
-      <h3>Browse Events</h3>
-      <ul id="browse-events" class="browse-container">
-        {% for event_id, event in events.items() %}
-            <li id="event{{event_id}}">
-                <b>{{event.title}}</b>
-                <ul>
-                    <li>Description: {{event.description}}</li>
-                    <li>Location: {{event.location}}</li>
-                    <li>Start Date: {{event.start_date}}</li>
-                    <li>End Date: {{event.end_date}}</li>
-                    <li>Start Time: {{event.start_time}}</li>
-                    <li>End Time: {{event.end_time}}</li>
-                    <li>Host: {{event.host}}</li>
-                    <li>Tag: {{event.tag}}</li>
-                </ul>
-            </li>
-        {% endfor %}
-        </ul>
+      <div class="browse-header">
+        <h3>Browse All Events</h3>
+        <div class="search-filter">
+          <input type="text" id="search-events" placeholder="Search events..." />
+          <select id="filter-category">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+      </div>
+      <div id="browse-events" class="browse-container">
+        <!-- Events will be dynamically loaded here -->
+      </div>
     </section>
+
+    <!-- Event Detail Modal -->
+    <div id="detail-modal" class="modal">
+      <div class="modal-content detail-modal-content">
+        <span class="close-modal" id="close-detail">&times;</span>
+        <h2 id="detail-title"></h2>
+        <div class="detail-info">
+          <div class="detail-row">
+            <span class="detail-label">📅 Date:</span>
+            <span id="detail-date"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">🕐 Time:</span>
+            <span id="detail-time"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">📍 Location:</span>
+            <span id="detail-location"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">🏢 Host:</span>
+            <span id="detail-host"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">🏷️ Category:</span>
+            <span id="detail-tag" class="event-tag"></span>
+          </div>
+          <div class="detail-row description">
+            <span class="detail-label">📝 Description:</span>
+            <p id="detail-description"></p>
+          </div>
+          <a id="detail-link" href="#" target="_blank" class="event-link">View Event Page →</a>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Add Event Modal -->
@@ -72,6 +101,12 @@
     </div>
   </div>
 
+  <script id="events-data" type="application/json">{{ events | tojson }}</script>
+  <script>
+    // Parse events data from JSON script tag
+    const eventsData = JSON.parse(document.getElementById('events-data').textContent);
+  </script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="{{ url_for('static', filename='browse-events.js') }}"></script>
 </body>
 </html>

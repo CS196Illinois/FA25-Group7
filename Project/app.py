@@ -1,39 +1,42 @@
 from flask import Flask, render_template, request, jsonify
-from Project.scrape import scrape
 import json, os
+from supabase import create_client
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Creates the supabase client
+supabase = create_client(
+    os.environ.get('SUPABASE_URL'),
+    os.environ.get('SUPABASE_SERVICE_KEY')
+)
+
+# Creates the flask app
 app = Flask(__name__)
 
-DATA_FILE = os.path.join(os.path.dirname(__file__), "json/events.json")
-
-# Load events
+# Load events from Supabase (latest entry by created_at timestamp)
 def load_events():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
+    response = supabase.table('scraped_event_data').select('data').order('created_at', desc=True).limit(1).execute()
+    if response.data and len(response.data) > 0:
+        return response.data[0]['data']
     return {}
 
-# Save events
-def save_events(events):
-    with open(DATA_FILE, "w") as f:
-        json.dump(events, f, indent=2)
-
+# Loads the home page
 @app.route("/")
 def index():
     events = load_events()
     return render_template("index.html", events=events)
 
+# Grabs all the scraped events from supabase
 @app.route("/events", methods=["GET"])
 def get_events():
-    return jsonify(load_events())
+    return load_events()
 
-@app.route("/events", methods=["POST"])
-def add_event():
-    data = request.json
-    events = load_events()
-    events.append(data)
-    save_events(events)
-    return jsonify({"message": "Event added successfully"}), 201
+@app.route("/userevents", methods=["POST"])
+def save_user_events():
+    ## TODO
+    return None
 
 if __name__ == "__main__":
     app.run(debug=True)

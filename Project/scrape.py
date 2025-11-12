@@ -306,7 +306,6 @@ image = (
     image=image,
     secrets=[modal.Secret.from_name("supabase-creds")] # Gets our Supabase URL and Service key from our secrets
 )
-
 def run_scraper():    
     print("Connecting to Supabase...")
 
