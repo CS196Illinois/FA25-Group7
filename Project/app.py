@@ -1,26 +1,27 @@
 from flask import Flask, render_template, request, jsonify
 import json, os
-from supabase import create_client
-from dotenv import load_dotenv
+'''
+#from supabase import create_client
+#from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv()
+#load_dotenv()
 
 # Creates the supabase client
 supabase = create_client(
     os.environ.get('SUPABASE_URL'),
     os.environ.get('SUPABASE_SERVICE_KEY')
 )
-
+'''
 # Creates the flask app
 app = Flask(__name__)
 
 # Load events from Supabase (latest entry by created_at timestamp)
 def load_events():
-    response = supabase.table('scraped_event_data').select('data').order('created_at', desc=True).limit(1).execute()
-    if response.data and len(response.data) > 0:
-        return response.data[0]['data']
-    return {}
+    json_path = os.path.join(os.path.dirname(__file__), "json/events.json")
+    with open(json_path, "r") as f:
+        data = json.load(f)
+    return data
 
 # Loads the home page
 @app.route("/")
