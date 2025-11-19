@@ -1,74 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const today = new Date();
-  const monthYear = document.getElementById("month-year");
-  const grid = document.getElementById("calendar-grid");
   const eventsList = document.getElementById("events-list");
   const upcoming = document.getElementById("upcoming-events");
   const modal = document.getElementById("event-modal");
 
-  let currentMonth = today.getMonth();
-  let currentYear = today.getFullYear();
-
-  function renderCalendar() {
-    grid.innerHTML = "";
-    const date = new Date(currentYear, currentMonth);
-    const monthName = date.toLocaleString("default", { month: "long" });
-    monthYear.textContent = `${monthName} ${currentYear}`;
-
-    // Add day headers
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    days.forEach(day => {
-      const header = document.createElement("div");
-      header.textContent = day;
-      header.style.fontWeight = "bold";
-      header.style.textAlign = "center";
-      grid.appendChild(header);
-    });
-
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    const startDay = firstDay.getDay();
-
-    for (let i = 0; i < startDay; i++) {
-      const empty = document.createElement("div");
-      grid.appendChild(empty);
-    }
-
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const cell = document.createElement("div");
-      cell.textContent = day;
-      if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear())
-        cell.classList.add("active");
-      grid.appendChild(cell);
-    }
-  }
-
-  // Month navigation
-  const prevButton = document.getElementById("prev-month");
-  const nextButton = document.getElementById("next-month");
-
-  if (prevButton) {
-    prevButton.addEventListener("click", () => {
-      currentMonth--;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      }
-      renderCalendar();
-    });
-  }
-
-  if (nextButton) {
-    nextButton.addEventListener("click", () => {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      renderCalendar();
-    });
-  }
-
+  
   document.getElementById("add-event").addEventListener("click", () => {
     modal.style.display = "flex";
   });
@@ -91,10 +27,20 @@ document.addEventListener("DOMContentLoaded", () => {
       location,
     };
 
-    // TODO: Put event data in user's google calendar
-
+    // To add to Google Calendar, we'll use the Google Calendar API
+    // For now, we'll open Google Calendar with pre-filled event data
+    const startDate = new Date(datetime);
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // +1 hour
+    
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}&location=${encodeURIComponent(location)}`;
+    
+    window.open(googleCalendarUrl, '_blank');
+    
     modal.style.display = "none";
   });
 
-  renderCalendar();
+  // Helper function to format date for Google Calendar URL
+  function formatGoogleDate(date) {
+    return date.toISOString().replace(/-|:|\.\d+/g, '');
+  }
 });

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calendar App</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Google API Libraries -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
 <body>
   <div class="container">
@@ -12,30 +15,49 @@
       <h1>Calendar</h1>
       <p id="current-date"></p>
       <div class="header-buttons">
+      <!-- Connection Status and Button -->
+        <button id="connect-calendar-btn" class="connect-btn">
+          🔗 Connect Your Calendar
+        </button>
+        <span id="connection-status" style="display: none;">
+          ✅ Connected as <span id="user-email"></span>
+          <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
+        </span>
         <button id="add-email">Add from Email</button>
         <button id="add-event">+ Add Event</button>
       </div>
     </header>
 
     <section class="calendar-section">
+      <!-- Google Calendar Embed -->
       <div class="calendar-container">
-        <div class="month-controls">
-          <button id="prev-month">←</button>
-          <h2 id="month-year"></h2>
-          <button id="next-month">→</button>
+        <div class="google-calendar-wrapper" id="calendar-wrapper">
+          <!-- Default placeholder calendar -->
+          <iframe 
+            id="calendar-iframe"
+            src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America/Chicago&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0"
+            style="border: 0" 
+            width="100%" 
+            height="600" 
+            frameborder="0" 
+            scrolling="no">
+          </iframe>
         </div>
-        <div class="calendar-grid" id="calendar-grid"></div>
       </div>
 
       <div class="events-panel">
         <h3>Events</h3>
-        <div id="events-list"></div>
+        <div id="events-list">
+          <p class="no-events-text">Connect your calendar to see events</p>
+        </div>
       </div>
     </section>
 
     <section class="upcoming-section">
       <h3>Upcoming Events</h3>
-      <div id="upcoming-events" class="upcoming-container"></div>
+      <div id="upcoming-events" class="upcoming-container">
+        <p class="no-events-text">Connect your calendar to see upcoming events</p>
+      </div>
     </section>
 
     <section class="browse-section">
@@ -106,7 +128,10 @@
     // Parse events data from JSON script tag
     const eventsData = JSON.parse(document.getElementById('events-data').textContent);
   </script>
+  <script src="{{ url_for('static', filename='calendar-connect.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script src="{{ url_for('static', filename='browse-events.js') }}"></script>
 </body>
 </html>
+
+
