@@ -32,6 +32,14 @@
       <!-- Google Calendar Embed -->
       <div class="calendar-container">
         <div class="google-calendar-wrapper" id="calendar-wrapper">
+          <!-- Calendar Overlay (shown when not connected) -->
+          <div id="calendar-overlay" class="calendar-overlay">
+            <div class="overlay-content">
+              <h3>Connect Your Google Calendar</h3>
+              <p>Click the "Connect Your Calendar" button above to sync your events</p>
+            </div>
+          </div>
+          
           <!-- Default placeholder calendar -->
           <iframe 
             id="calendar-iframe"
@@ -46,7 +54,7 @@
       </div>
 
       <div class="events-panel">
-        <h3>Events</h3>
+        <h3>Today's Events</h3>
         <div id="events-list">
           <p class="no-events-text">Connect your calendar to see events</p>
         </div>
@@ -114,24 +122,34 @@
   <!-- Add Event Modal -->
   <div id="event-modal" class="modal">
     <div class="modal-content">
+      <span class="close-modal" id="close-add-event">&times;</span>
       <h3>Add New Event</h3>
-      <input type="text" id="event-title" placeholder="Event Title" />
-      <input type="datetime-local" id="event-date" />
-      <input type="text" id="event-location" placeholder="Location" />
-      <button id="save-event">Save</button>
-      <button id="close-modal">Cancel</button>
+      <input type="text" id="event-title" placeholder="Event Title" required />
+      <input type="datetime-local" id="event-date" required />
+      <input type="text" id="event-location" placeholder="Location (optional)" />
+      <textarea id="event-description" placeholder="Description (optional)" rows="3"></textarea>
+      <div class="modal-buttons">
+        <button id="save-event" class="btn-primary">Save to Google Calendar</button>
+        <button id="close-modal" class="btn-secondary">Cancel</button>
+      </div>
     </div>
   </div>
+
+  <!-- Configuration Script - REPLACE WITH YOUR CREDENTIALS -->
+  <script>
+    // TODO: Replace these with your actual Google API credentials
+    // Get them from: https://console.cloud.google.com/
+    const GOOGLE_CLIENT_ID = '816135049598-6kpotkhflbe2t64fgfspj6q07p2tqp22.apps.googleusercontent.com';
+    const GOOGLE_API_KEY = 'AIzaSyDcUJ0pdOWXgObF4ZZHBFtZ3WYInCQOnho';
+  </script>
 
   <script id="events-data" type="application/json">{{ events | tojson }}</script>
   <script>
     // Parse events data from JSON script tag
-    const eventsData = JSON.parse(document.getElementById('events-data').textContent);
+    const eventsData = JSON.parse(document.getElementById('events-data').textContent || '[]');
   </script>
   <script src="{{ url_for('static', filename='calendar-connect.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <script src="{{ url_for('static', filename='browse-events.js') }}"></script>
 </body>
 </html>
-
-
