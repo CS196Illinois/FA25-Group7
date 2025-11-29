@@ -34,10 +34,5 @@ def index():
 def get_events():
     return load_events()
 
-@app.route("/userevents", methods=["POST"])
-def save_user_events():
-    ## TODO
-    return None
-
 if __name__ == "__main__":
     app.run(debug=True)
