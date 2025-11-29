@@ -1,7 +1,12 @@
 Flask
 beautifulsoup4
+datetime
 lxml
 playwright
 requests
-supabase
+firebase-admin
 python-dotenv
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client

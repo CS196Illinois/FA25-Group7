@@ -3,110 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendar App</title>
+  <title>EventFlow</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <!-- Google API Libraries -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Calendar</h1>
-      <p id="current-date"></p>
-      <div class="header-buttons">
-      <!-- Connection Status and Button -->
-        <button id="connect-calendar-btn" class="connect-btn">
-          🔗 Connect Your Calendar
+  <div class="split-container">
+    <!-- LEFT SIDE: Upcoming Events -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <h2>Upcoming Events</h2>
+      </div>
+
+      <!-- Month/Year Selector -->
+      <div class="month-selector">
+        <button id="prev-month" class="month-nav-btn" style="visibility: hidden;">←</button>
+        <div class="month-display">
+          <span id="current-month-year"></span>
+        </div>
+        <button id="next-month" class="month-nav-btn">→</button>
+      </div>
+
+      <!-- Upcoming Events List -->
+      <div id="upcoming-events-list" class="upcoming-events-scroll">
+        <p class="no-events-text">No upcoming events this month</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button id="connect-calendar-btn" class="action-btn">
+          🔗 Connect Calendar
         </button>
-        <span id="connection-status" style="display: none;">
-          ✅ Connected as <span id="user-email"></span>
-          <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
-        </span>
-        <button id="add-email">Add from Email</button>
-        <button id="add-event">+ Add Event</button>
-      </div>
-    </header>
-
-    <section class="calendar-section">
-      <!-- Google Calendar Embed -->
-      <div class="calendar-container">
-        <div class="google-calendar-wrapper" id="calendar-wrapper">
-          <!-- Default placeholder calendar -->
-          <iframe 
-            id="calendar-iframe"
-            src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America/Chicago&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0"
-            style="border: 0" 
-            width="100%" 
-            height="600" 
-            frameborder="0" 
-            scrolling="no">
-          </iframe>
-        </div>
+        <button id="add-email-btn" class="action-btn">
+          📧 Add from Email
+        </button>
+        <button id="add-event-btn" class="action-btn">
+          ➕ Manual Event
+        </button>
       </div>
 
-      <div class="events-panel">
-        <h3>Events</h3>
-        <div id="events-list">
-          <p class="no-events-text">Connect your calendar to see events</p>
-        </div>
+      <!-- Connection Status (Hidden by default) -->
+      <div id="connection-status" class="connection-status" style="display: none;">
+        <span>✅ Connected to <span id="user-email"></span>'s Google Calendar!</span>
+        <button id="disconnect-btn" class="disconnect-btn-small">Disconnect</button>
       </div>
-    </section>
+    </div>
 
-    <section class="upcoming-section">
-      <h3>Upcoming Events</h3>
-      <div id="upcoming-events" class="upcoming-container">
-        <p class="no-events-text">Connect your calendar to see upcoming events</p>
-      </div>
-    </section>
-
-    <section class="browse-section">
-      <div class="browse-header">
-        <h3>Browse All Events</h3>
-        <div class="search-filter">
-          <input type="text" id="search-events" placeholder="Search events..." />
+    <!-- RIGHT SIDE: Browse Events -->
+    <div class="right-panel">
+      <div class="panel-header">
+        <h2>Browse All Events</h2>
+        <div class="search-filter-compact">
+          <input type="text" id="search-events" placeholder="Search..." />
           <select id="filter-category">
             <option value="all">All Categories</option>
           </select>
         </div>
       </div>
-      <div id="browse-events" class="browse-container">
+
+      <div id="browse-events" class="browse-container-compact">
         <!-- Events will be dynamically loaded here -->
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- Event Detail Modal -->
-    <div id="detail-modal" class="modal">
-      <div class="modal-content detail-modal-content">
-        <span class="close-modal" id="close-detail">&times;</span>
-        <h2 id="detail-title"></h2>
-        <div class="detail-info">
-          <div class="detail-row">
-            <span class="detail-label">📅 Date:</span>
-            <span id="detail-date"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🕐 Time:</span>
-            <span id="detail-time"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">📍 Location:</span>
-            <span id="detail-location"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🏢 Host:</span>
-            <span id="detail-host"></span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🏷️ Category:</span>
-            <span id="detail-tag" class="event-tag"></span>
-          </div>
-          <div class="detail-row description">
-            <span class="detail-label">📝 Description:</span>
-            <p id="detail-description"></p>
-          </div>
-          <a id="detail-link" href="#" target="_blank" class="event-link">View Event Page →</a>
+  <!-- Event Detail Modal -->
+  <div id="detail-modal" class="modal">
+    <div class="modal-content detail-modal-content">
+      <span class="close-modal" id="close-detail">&times;</span>
+      <h2 id="detail-title"></h2>
+      <div class="detail-info">
+        <div class="detail-row">
+          <span class="detail-label">📅 Date:</span>
+          <span id="detail-date"></span>
         </div>
+        <div class="detail-row">
+          <span class="detail-label">🕐 Time:</span>
+          <span id="detail-time"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">📍 Location:</span>
+          <span id="detail-location"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">🏢 Host:</span>
+          <span id="detail-host"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">🏷️ Category:</span>
+          <span id="detail-tag" class="event-tag"></span>
+        </div>
+        <div class="detail-row description">
+          <span class="detail-label">📝 Description:</span>
+          <p id="detail-description"></p>
+        </div>
+        <a id="detail-link" href="#" target="_blank" class="event-link">View Event Page →</a>
       </div>
     </div>
   </div>
@@ -123,15 +116,7 @@
     </div>
   </div>
 
-  <script id="events-data" type="application/json">{{ events | tojson }}</script>
-  <script>
-    // Parse events data from JSON script tag
-    const eventsData = JSON.parse(document.getElementById('events-data').textContent);
-  </script>
-  <script src="{{ url_for('static', filename='calendar-connect.js') }}"></script>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-  <script src="{{ url_for('static', filename='browse-events.js') }}"></script>
+  <script src="{{ url_for('static', filename='calendar-client.js') }}" type="module"></script>
+  <script src="{{ url_for('static', filename='script.js') }}" type="module"></script>
 </body>
 </html>
-
-
