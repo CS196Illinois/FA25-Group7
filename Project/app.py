@@ -1,8 +1,4 @@
-from flask import Flask, render_template, request, jsonify
-import firebase_admin
-from firebase_admin import credentials, db
-from dotenv import load_dotenv
-
+from flask import Flask, render_template
 # Creates the flask app
 app = Flask(__name__)
 
