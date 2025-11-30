@@ -1,4 +1,28 @@
-// ** GENERATED USING CLAUDE CODE ** //
+// ** CO-AUTHORED BY CLAUDE CODE ** //
+
+// Initialize Firebase
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+apiKey: "AIzaSyAKfE_dl9zp5U_BVaqOmsdbjKjb-2KOlFA",
+authDomain: "eventflowdatabase.firebaseapp.com",
+databaseURL: "https://eventflowdatabase-default-rtdb.firebaseio.com",
+projectId: "eventflowdatabase",
+storageBucket: "eventflowdatabase.firebasestorage.app",
+messagingSenderId: "611561258590",
+appId: "1:611561258590:web:16a4d352f06bdbbfad3ecf",
+measurementId: "G-0C45LS13MN"
+};
+
+  // Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // Wait for the page to fully load before running our code
 document.addEventListener("DOMContentLoaded", function() {
@@ -17,42 +41,47 @@ document.addEventListener("DOMContentLoaded", function() {
   // Convert the events object from the server into an array
   async function loadEvents() {
     try {
-      // Fetch events from the /events endpoint
-      const response = await fetch('/events');
-      const eventsData = await response.json();
-
-      // Check if we got data back
-      if (!eventsData || Object.keys(eventsData).length === 0) {
-        console.log('No events found');
-        browseContainer.innerHTML = '<p class="no-events-text">No events available</p>';
-        return;
-      }
-
-      // Loop through each event and add it to our array
-      for (let id in eventsData) {
-        let event = eventsData[id];
-        event.id = id; // Add the ID to the event
-
-        // Convert ISO datetime format to display format
-        event = parseEventData(event);
-
-        // Skip events that already happened
-        if (isEventInPast(event)) {
-          continue;
+        // Fetch events from the /events endpoint
+        const eventsRef = ref(db, "scraped_events");
+        const snapshot = await get(eventsRef);
+        
+        let eventsData = null;
+        if (snapshot.exists()) {
+            eventsData =  snapshot.val();
         }
 
-        allEvents.push(event);
-      }
+        // Check if we got data back
+        if (!eventsData || Object.keys(eventsData).length === 0) {
+            console.log('No events found');
+            browseContainer.innerHTML = '<p class="no-events-text">No events available</p>';
+            return;
+        }
 
-      // Sort events by date and time
-      sortEventsByTime();
+        // Loop through each event and add it to our array
+        for (let id in eventsData) {
+            let event = eventsData[id];
+            event.id = id; // Add the ID to the event
 
-      // Now that we have all events, set up the page
-      setupCategories();
-      displayEvents(allEvents);
+            // Convert ISO datetime format to display format
+            event = parseEventData(event);
+
+            // Skip events that already happened
+            if (isEventInPast(event)) {
+            continue;
+            }
+
+            allEvents.push(event);
+        }
+
+        // Sort events by date and time
+        sortEventsByTime();
+
+        // Now that we have all events, set up the page
+        setupCategories();
+        displayEvents(allEvents);
     } catch (error) {
-      console.error('Error loading events:', error);
-      browseContainer.innerHTML = '<p style="text-align: center; color: #888;">Error loading events</p>';
+        console.error('Error loading events:', error);
+        browseContainer.innerHTML = '<p style="text-align: center; color: #888;">Error loading events</p>';
     }
   }
 
