@@ -91,7 +91,7 @@ function initGisClient() {
 function checkIfReady() {
     if (gapiInited && gisInited) {
         console.log('✅ Google Calendar ready');
-        
+
         // Enable the connect button
         const connectBtn = document.getElementById('connect-calendar-btn');
         if (connectBtn) {
@@ -99,7 +99,7 @@ function checkIfReady() {
             connectBtn.style.opacity = '1';
             connectBtn.style.cursor = 'pointer';
         }
-        
+
         // Set up disconnect button
         const disconnectBtn = document.getElementById('disconnect-btn');
         if (disconnectBtn) {

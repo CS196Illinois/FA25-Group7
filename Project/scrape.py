@@ -79,7 +79,7 @@ def scrape_general():
             event_info["summary"] = event_name
 
             # Description for the event, if given
-            event_info["description"] = "N/A"
+            event_info["description"] = ""
             desc = event.find("dd", class_="ws-description")
             if desc != None:
                 event_info["description"] = desc.text

@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Check if we got data back
       if (!eventsData || Object.keys(eventsData).length === 0) {
         console.log('No events found');
-        browseContainer.innerHTML = '<p style="text-align: center; color: #888;">No events available</p>';
+        browseContainer.innerHTML = '<p class="no-events-text">No events available</p>';
         return;
       }
 
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // If no events, show a message
     if (events.length === 0) {
-      browseContainer.innerHTML = '<p style="text-align: center; color: #888;">No events found</p>';
+      browseContainer.innerHTML = '<p class="no-events-text">No events found</p>';
       return;
     }
 
@@ -214,9 +214,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Build the HTML for the card
     let html = '<div class="event-card-title">' + (event.summary || 'Untitled Event') + '</div>';
-    html += '<div class="event-card-info"><strong>📅</strong> ' + (event.start_date || 'Date TBA') + '</div>';
-    html += '<div class="event-card-info"><strong>🕐</strong> ' + (time || 'Time TBA') + '</div>';
-    html += '<div class="event-card-info"><strong>📍</strong> ' + (event.location || 'Location TBA') + '</div>';
+    html += '<div class="event-card-info"><strong>📅</strong><span>' + (event.start_date || 'Date TBA') + '</span></div>';
+    html += '<div class="event-card-info"><strong>🕐</strong><span>' + (time || 'Time TBA') + '</span></div>';
+    html += '<div class="event-card-info"><strong>📍</strong><span>' + (event.location || 'Location TBA') + '</span></div>';
     html += '<div class="event-card-footer">';
     html += '  <span class="event-tag">' + (event.tag || 'General') + '</span>';
     html += '  <div class="card-actions">';
