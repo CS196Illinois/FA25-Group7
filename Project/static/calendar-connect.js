@@ -7,20 +7,10 @@ let gisInited = false;
 // Wait for page to load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔄 Starting Google Calendar initialization...');
-    // Display current date
-    updateCurrentDate();
     
     // Wait a bit for Google libraries to load
     setTimeout(initializeGoogleCalendar, 1000);
 });
-
-function updateCurrentDate() {
-    const dateElement = document.getElementById('current-date');
-    if (dateElement) {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        dateElement.textContent = new Date().toLocaleDateString('en-US', options);
-    }
-}
 
 function initializeGoogleCalendar() {
     // Check if credentials are set
@@ -101,7 +91,7 @@ function initGisClient() {
 function checkIfReady() {
     if (gapiInited && gisInited) {
         console.log('✅ Google Calendar ready');
-        
+
         // Enable the connect button
         const connectBtn = document.getElementById('connect-calendar-btn');
         if (connectBtn) {
@@ -109,13 +99,37 @@ function checkIfReady() {
             connectBtn.style.opacity = '1';
             connectBtn.style.cursor = 'pointer';
         }
-        
+
         // Set up disconnect button
         const disconnectBtn = document.getElementById('disconnect-btn');
         if (disconnectBtn) {
             disconnectBtn.onclick = handleDisconnectClick;
         }
+
+        // Set up refresh button
+        const refreshBtn = document.getElementById('refresh-calendar-btn');
+        if (refreshBtn) {
+            refreshBtn.onclick = handleRefreshClick;
+        }
     }
+}
+
+function handleRefreshClick() {
+    console.log('🔄 Manually refreshing calendars...');
+
+    // Refresh main calendar iframe
+    const mainIframe = document.getElementById('calendar-iframe');
+    if (mainIframe && mainIframe.src) {
+        mainIframe.src = mainIframe.src;
+    }
+
+    // Refresh today's agenda iframe
+    const agendaIframe = document.getElementById('today-agenda-iframe');
+    if (agendaIframe && agendaIframe.src) {
+        agendaIframe.src = agendaIframe.src;
+    }
+
+    showNotification('📅 Calendars refreshed!', 'success');
 }
 
 function handleConnectClick() {
@@ -158,37 +172,82 @@ function handleDisconnectClick() {
 
 async function onCalendarConnected() {
     try {
-        // Get user's calendar info
+        // Get user's calendar info - fetch ALL calendars
         const response = await gapi.client.calendar.calendarList.list({
-            maxResults: 10
+            minAccessRole: 'reader',
+            showHidden: false
         });
-        
-        const primaryCalendar = response.result.items.find(cal => cal.primary) || response.result.items[0];
+
+        const calendars = response.result.items || [];
+        const primaryCalendar = calendars.find(cal => cal.primary) || calendars[0];
         const userEmail = primaryCalendar.id;
-        
-        console.log('📧 Connected as:', userEmail);
-        
+
+        console.log(`📧 Connected as: ${userEmail}`);
+        console.log(`📅 Found ${calendars.length} calendars`);
+
         // Update UI
         document.getElementById('connect-calendar-btn').style.display = 'none';
         document.getElementById('connection-status').style.display = 'inline-block';
         document.getElementById('user-email').textContent = userEmail;
-        
+
         const overlay = document.getElementById('calendar-overlay');
         if (overlay) {
             overlay.style.display = 'none';
         }
-        
-        // Update iframe to show user's calendar
+
+        // Build iframe URL with ALL calendars
         const iframe = document.getElementById('calendar-iframe');
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        iframe.src = `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(userEmail)}&ctz=${encodeURIComponent(userTimezone)}&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0`;
-        
-        // Load events
-        await loadUserEvents();
-        
+
+        // Build URL with multiple calendar sources
+        let iframeSrc = `https://calendar.google.com/calendar/embed?`;
+
+        // Add each calendar as a source (show all calendars)
+        calendars.forEach((cal, index) => {
+            // Only add calendars that are selected to be shown
+            if (cal.selected !== false) {
+                iframeSrc += `src=${encodeURIComponent(cal.id)}&`;
+                // Add color for each calendar
+                if (cal.backgroundColor) {
+                    const colorNumber = index % 24; // Google Calendar has 24 color options
+                    iframeSrc += `color=${encodeURIComponent(cal.backgroundColor.replace('#', '%23'))}&`;
+                }
+            }
+        });
+
+        // Add display options
+        iframeSrc += `ctz=${encodeURIComponent(userTimezone)}`;
+        iframeSrc += `&mode=MONTH`;
+        iframeSrc += `&showTitle=0`;
+        iframeSrc += `&showNav=1`;
+        iframeSrc += `&showDate=1`;
+        iframeSrc += `&showPrint=0`;
+        iframeSrc += `&showTabs=1`;        // Show tabs to switch between calendars
+        iframeSrc += `&showCalendars=1`;   // Show calendar list on the side
+
+        iframe.src = iframeSrc;
+
+        // Update Today's Events iframe (AGENDA view)
+        const todayIframe = document.getElementById('today-agenda-iframe');
+        if (todayIframe) {
+            let agendaSrc = `https://calendar.google.com/calendar/embed?mode=AGENDA`;
+
+            // Add all calendars to agenda view too
+            calendars.forEach((cal) => {
+                if (cal.selected !== false) {
+                    agendaSrc += `&src=${encodeURIComponent(cal.id)}`;
+                }
+            });
+
+            agendaSrc += `&ctz=${encodeURIComponent(userTimezone)}`;
+            agendaSrc += `&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0`;
+
+            todayIframe.src = agendaSrc;
+        }
+
         // Show success message
-        showNotification('✅ Successfully connected your Google Calendar!', 'success');
-        
+        showNotification(`✅ Successfully connected ${calendars.length} calendars!`, 'success');
+
     } catch (error) {
         console.error('❌ Error loading calendar:', error);
         alert('Error loading calendar. Please try again.');
@@ -211,114 +270,17 @@ function onCalendarDisconnected() {
     // Reset iframe to default calendar
     const iframe = document.getElementById('calendar-iframe');
     iframe.src = 'https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America/Chicago&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0';
-    
-    // Clear events
-    document.getElementById('events-list').innerHTML = '<p class="no-events-text">Connect your calendar to see events</p>';
+
+    // Reset today's agenda iframe
+    const todayIframe = document.getElementById('today-agenda-iframe');
+    if (todayIframe) {
+        todayIframe.src = 'https://calendar.google.com/calendar/embed?mode=AGENDA&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=400&wkst=1&ctz=America/Chicago&src=en.usa%23holiday%40group.v.calendar.google.com';
+    }
+
+    // Clear upcoming events
     document.getElementById('upcoming-events').innerHTML = '<p class="no-events-text">Connect your calendar to see upcoming events</p>';
     
     showNotification('Disconnected from Google Calendar', 'info');
-}
-
-async function loadUserEvents() {
-    try {
-        const now = new Date();
-        const timeMin = now.toISOString();
-        const timeMax = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate()).toISOString();
-        
-        const response = await gapi.client.calendar.events.list({
-            'calendarId': 'primary',
-            'timeMin': timeMin,
-            'timeMax': timeMax,
-            'showDeleted': false,
-            'singleEvents': true,
-            'maxResults': 50,
-            'orderBy': 'startTime'
-        });
-
-        const events = response.result.items || [];
-        console.log(`📅 Loaded ${events.length} events`);
-        
-        // Display today's events
-        displayTodayEvents(events);
-        
-        // Display upcoming events
-        displayUpcomingEvents(events);
-        
-    } catch (error) {
-        console.error('❌ Error loading events:', error);
-        showNotification('Error loading events', 'error');
-    }
-}
-
-function displayTodayEvents(events) {
-    const eventsPanel = document.getElementById('events-list');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const todayEvents = events.filter(event => {
-        const eventDate = new Date(event.start.dateTime || event.start.date);
-        return eventDate >= today && eventDate < tomorrow;
-    });
-
-    if (todayEvents.length === 0) {
-        eventsPanel.innerHTML = '<p class="no-events-text">No events today</p>';
-        return;
-    }
-
-    eventsPanel.innerHTML = '';
-    todayEvents.forEach(event => {
-        const time = event.start.dateTime 
-            ? new Date(event.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : 'All day';
-        
-        const eventDiv = document.createElement('div');
-        eventDiv.className = 'event-item';
-        eventDiv.innerHTML = `
-            <div class="event-time">${time}</div>
-            <div class="event-details">
-                <strong>${escapeHtml(event.summary || 'Untitled Event')}</strong>
-                ${event.location ? `<p class="event-location">📍 ${escapeHtml(event.location)}</p>` : ''}
-            </div>
-        `;
-        eventsPanel.appendChild(eventDiv);
-    });
-}
-
-function displayUpcomingEvents(events) {
-    const upcomingContainer = document.getElementById('upcoming-events');
-    
-    if (events.length === 0) {
-        upcomingContainer.innerHTML = '<p class="no-events-text">No upcoming events</p>';
-        return;
-    }
-
-    upcomingContainer.innerHTML = '';
-    
-    // Show up to 10 upcoming events
-    const upcomingEvents = events.slice(0, 10);
-    
-    upcomingEvents.forEach(event => {
-        const start = event.start.dateTime || event.start.date;
-        const startDate = new Date(start);
-        
-        const eventCard = document.createElement('div');
-        eventCard.className = 'event-card';
-        eventCard.innerHTML = `
-            <h4>${escapeHtml(event.summary || 'Untitled Event')}</h4>
-            <p>📅 ${startDate.toLocaleDateString()}</p>
-            <p>🕐 ${event.start.dateTime ? startDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : 'All day'}</p>
-            ${event.location ? `<p>📍 ${escapeHtml(event.location)}</p>` : ''}
-            ${event.description ? `<p class="event-description">${escapeHtml(event.description.substring(0, 100))}${event.description.length > 100 ? '...' : ''}</p>` : ''}
-        `;
-        
-        // Add click handler to show more details
-        eventCard.style.cursor = 'pointer';
-        eventCard.onclick = () => showEventDetails(event);
-        
-        upcomingContainer.appendChild(eventCard);
-    });
 }
 
 function showEventDetails(event) {

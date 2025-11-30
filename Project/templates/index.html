@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendar App</title>
+  <title>EventFlow | Illinois</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
   <!-- Google API Libraries -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
@@ -12,65 +13,78 @@
 <body>
   <div class="container">
     <header>
-      <h1>Calendar</h1>
-      <p id="current-date"></p>
+      <div class="header-logo">
+        <img src="{{ url_for('static', filename='images/Illinois_Block_I.png') }}" alt="Illinois Block I" class="logo-img">
+        <img src="{{ url_for('static', filename='images/favicon.png') }}" alt="EventFlow Logo" class="logo-img">
+        <h1>EventFlow @ Illinois</h1>
+      </div>
       <div class="header-buttons">
       <!-- Connection Status and Button -->
         <button id="connect-calendar-btn" class="connect-btn">
-          🔗 Connect Your Calendar
+          🔗 Connect Your Google Calendar
         </button>
         <span id="connection-status" style="display: none;">
           ✅ Connected as <span id="user-email"></span>
           <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
         </span>
-        <button id="add-email">Add from Email</button>
-        <button id="add-event">+ Add Event</button>
       </div>
     </header>
 
+    <!-- Calendar Section -->
     <section class="calendar-section">
-      <!-- Google Calendar Embed -->
-      <div class="calendar-container">
-        <div class="google-calendar-wrapper" id="calendar-wrapper">
-          <!-- Calendar Overlay (shown when not connected) -->
-          <div id="calendar-overlay" class="calendar-overlay">
-            <div class="overlay-content">
-              <h3>Connect Your Google Calendar</h3>
-              <p>Click the "Connect Your Calendar" button above to sync your events</p>
+      <div class="calendar-grid-container">
+        <!-- Your Calendar -->
+        <div class="calendar-container">
+          <div class="section-header">
+            <h2>Your Calendar</h2>
+            <div class="calendar-actions">
+              <button id="refresh-calendar-btn" class="refresh-btn">🔄 Refresh</button>
+              <button id="add-email">📧 Add from Email</button>
+              <button id="add-event">+ Add Event</button>
             </div>
           </div>
-          
-          <!-- Default placeholder calendar -->
-          <iframe 
-            id="calendar-iframe"
-            src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America/Chicago&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0"
-            style="border: 0" 
-            width="100%" 
-            height="600" 
-            frameborder="0" 
-            scrolling="no">
-          </iframe>
-        </div>
-      </div>
+          <div class="google-calendar-wrapper" id="calendar-wrapper">
+            <!-- Calendar Overlay (shown when not connected) -->
+            <div id="calendar-overlay" class="calendar-overlay">
+              <div class="overlay-content">
+                <h3>First, Connect Your Google Calendar</h3>
+                <p>Sync your Google Calendar in the top right to view and manage your events</p>
+              </div>
+            </div>
 
-      <div class="events-panel">
-        <h3>Today's Events</h3>
-        <div id="events-list">
-          <p class="no-events-text">Connect your calendar to see events</p>
+            <!-- Default placeholder calendar -->
+            <iframe
+              id="calendar-iframe"
+              src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America/Chicago&mode=MONTH&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0"
+              style="border: 0"
+              width="100%"
+              height="600"
+              frameborder="0"
+              scrolling="no">
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="events-panel">
+          <h3>Upcoming Events</h3>
+          <div id="events-list" style="height: 100%; display: flex; flex-direction: column;">
+            <!-- Today's Agenda Calendar Iframe -->
+            <iframe
+              id="today-agenda-iframe"
+              src="https://calendar.google.com/calendar/embed?mode=AGENDA&showTitle=0&showNav=0&showDate=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&height=600&wkst=1&ctz=America/Chicago&src=en.usa%23holiday%40group.v.calendar.google.com"
+              style="border: 0; width: 100%; flex: 1; min-height: 550px;"
+              frameborder="0"
+              scrolling="yes">
+            </iframe>
+          </div>
         </div>
       </div>
     </section>
-
-    <section class="upcoming-section">
-      <h3>Upcoming Events</h3>
-      <div id="upcoming-events" class="upcoming-container">
-        <p class="no-events-text">Connect your calendar to see upcoming events</p>
-      </div>
-    </section>
-
+    
     <section class="browse-section">
       <div class="browse-header">
-        <h3>Browse All Events</h3>
+        <h3>Browse Events Near UIUC</h3>
         <div class="search-filter">
           <input type="text" id="search-events" placeholder="Search events..." />
           <select id="filter-category">
@@ -102,10 +116,6 @@
             <span id="detail-location"></span>
           </div>
           <div class="detail-row">
-            <span class="detail-label">🏢 Host:</span>
-            <span id="detail-host"></span>
-          </div>
-          <div class="detail-row">
             <span class="detail-label">🏷️ Category:</span>
             <span id="detail-tag" class="event-tag"></span>
           </div>
@@ -135,21 +145,38 @@
     </div>
   </div>
 
+  <!-- Email Parser Modal -->
+  <div id="email-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="close-email-modal">&times;</span>
+      <h3>Add Events from Email</h3>
+      <p style="color: #666; margin-bottom: 20px;">
+        This will scan your recent Outlook emails for calendar events and add them to your Google Calendar.
+      </p>
+      <label for="email-amount">Number of emails to scan (1-25):</label>
+      <input type="number" id="email-amount" min="1" max="25" value="5" style="width: 100%; margin-bottom: 20px;" />
+      <div class="modal-buttons">
+        <button id="process-emails-btn" class="btn-primary">Process Emails</button>
+        <button id="close-email-modal-btn" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Configuration Script - REPLACE WITH YOUR CREDENTIALS -->
   <script>
     // TODO: Replace these with your actual Google API credentials
     // Get them from: https://console.cloud.google.com/
-    const GOOGLE_CLIENT_ID = '816135049598-6kpotkhflbe2t64fgfspj6q07p2tqp22.apps.googleusercontent.com';
-    const GOOGLE_API_KEY = 'AIzaSyDcUJ0pdOWXgObF4ZZHBFtZ3WYInCQOnho';
+    const GOOGLE_CLIENT_ID = '985871831044-dao07nebhsmstom8althg48hfrg97oeo.apps.googleusercontent.com';
+    const GOOGLE_API_KEY = 'AIzaSyA7uXknS3AhXWG5IpcfdnI2eNo6-6hcmMA';
   </script>
 
-  <script id="events-data" type="application/json">{{ events | tojson }}</script>
-  <script>
-    // Parse events data from JSON script tag
-    const eventsData = JSON.parse(document.getElementById('events-data').textContent || '[]');
-  </script>
   <script src="{{ url_for('static', filename='calendar-connect.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
-  <script src="{{ url_for('static', filename='browse-events.js') }}"></script>
+  <script src="{{ url_for('static', filename='browse-events.js') }}" type="module"></script>
+
+  <footer>
+    Copyright © 2025 EventFlow
+  </footer>
+  </div>
 </body>
 </html>
