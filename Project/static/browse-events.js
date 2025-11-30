@@ -15,31 +15,87 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // ========== STEP 1: Load Events ==========
   // Convert the events object from the server into an array
-  function loadEvents() {
-    // Check if events data exists
-    if (typeof eventsData === 'undefined') {
-      return;
-    }
+  async function loadEvents() {
+    try {
+      // Fetch events from the /events endpoint
+      const response = await fetch('/events');
+      const eventsData = await response.json();
 
-    // Loop through each event and add it to our array
-    for (let id in eventsData) {
-      let event = eventsData[id];
-      event.id = id; // Add the ID to the event
-
-      // Skip events that already happened
-      if (isEventInPast(event)) {
-        continue;
+      // Check if we got data back
+      if (!eventsData || Object.keys(eventsData).length === 0) {
+        console.log('No events found');
+        browseContainer.innerHTML = '<p style="text-align: center; color: #888;">No events available</p>';
+        return;
       }
 
-      allEvents.push(event);
+      // Loop through each event and add it to our array
+      for (let id in eventsData) {
+        let event = eventsData[id];
+        event.id = id; // Add the ID to the event
+
+        // Convert ISO datetime format to display format
+        event = parseEventData(event);
+
+        // Skip events that already happened
+        if (isEventInPast(event)) {
+          continue;
+        }
+
+        allEvents.push(event);
+      }
+
+      // Sort events by date and time
+      sortEventsByTime();
+
+      // Now that we have all events, set up the page
+      setupCategories();
+      displayEvents(allEvents);
+    } catch (error) {
+      console.error('Error loading events:', error);
+      browseContainer.innerHTML = '<p style="text-align: center; color: #888;">Error loading events</p>';
+    }
+  }
+
+  // ========== Parse Event Data ==========
+  // Convert scraper format to display format
+  function parseEventData(event) {
+    // Parse ISO datetime strings (e.g., "2025-11-30T14:00:00-06:00")
+    if (event.start && event.start.includes('T')) {
+      const startDate = new Date(event.start);
+      event.start_date = formatDate(startDate);
+      event.start_time = formatTime(startDate);
     }
 
-    // Sort events by date and time
-    sortEventsByTime();
+    if (event.end && event.end.includes('T')) {
+      const endDate = new Date(event.end);
+      event.end_date = formatDate(endDate);
+      event.end_time = formatTime(endDate);
+    }
 
-    // Now that we have all events, set up the page
-    setupCategories();
-    displayEvents(allEvents);
+    return event;
+  }
+
+  // ========== Format Date Helper ==========
+  function formatDate(date) {
+    // Returns "Month Day, Year" format (e.g., "November 30, 2025")
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const month = monthNames[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
+  }
+
+  // ========== Format Time Helper ==========
+  function formatTime(date) {
+    // Returns "HH:MM AM/PM" format
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert to 12-hour format
+    return `${hours}:${minutes} ${ampm}`;
   }
 
   // ========== Sort Events by Date/Time ==========
@@ -157,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Build the HTML for the card
-    let html = '<div class="event-card-title">' + (event.title || 'Untitled Event') + '</div>';
+    let html = '<div class="event-card-title">' + (event.summary || 'Untitled Event') + '</div>';
     html += '<div class="event-card-info"><strong>📅</strong> ' + (event.start_date || 'Date TBA') + '</div>';
     html += '<div class="event-card-info"><strong>🕐</strong> ' + (time || 'Time TBA') + '</div>';
     html += '<div class="event-card-info"><strong>📍</strong> ' + (event.location || 'Location TBA') + '</div>';
@@ -188,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // ========== STEP 5: Show Event Details in Modal ==========
   function showEventDetails(event) {
     // Fill in the modal with event information
-    document.getElementById('detail-title').textContent = event.title || 'Untitled Event';
+    document.getElementById('detail-title').textContent = event.summary || 'Untitled Event';
     document.getElementById('detail-date').textContent = event.start_date || 'TBA';
 
     // Set time value to 'All Day' if the event lasts the whole day; else make it time listed in the event data
@@ -199,14 +255,13 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     document.getElementById('detail-location').textContent = event.location || 'TBA';
-    document.getElementById('detail-host').textContent = event.host || 'N/A';
     document.getElementById('detail-tag').textContent = event.tag || 'General';
     document.getElementById('detail-description').textContent = event.description || 'No description available.';
 
     // Set the event link if it exists
     let linkElement = document.getElementById('detail-link');
-    if (event.event_link) {
-      linkElement.href = event.event_link;
+    if (event.htmlLink) {
+      linkElement.href = event.htmlLink;
       linkElement.style.display = 'inline-block';
     } else {
       linkElement.style.display = 'none';
@@ -216,10 +271,62 @@ document.addEventListener("DOMContentLoaded", function() {
     detailModal.style.display = 'flex';
   }
 
-  // ========== STEP 6: Add to Calendar (TODO) ==========
-  function addToCalendar(event) {
-    alert('Add to Calendar - Coming Soon!\n\nEvent: ' + event.title);
-    // TODO: Implement saving to user's calendar
+  // ========== STEP 6: Add to Calendar ==========
+  async function addToCalendar(event) {
+    // Check if user is connected to Google Calendar
+    if (!window.calendarAPI || !window.calendarAPI.isConnected()) {
+      alert('Please connect your Google Calendar first!');
+      return;
+    }
+
+    try {
+      // Prepare event data for Google Calendar format
+      const eventData = {
+        summary: event.summary || 'Untitled Event',
+        location: event.location || '',
+        description: event.description || '',
+        start: {
+          dateTime: event.start,
+          timeZone: 'America/Chicago'
+        },
+        end: {
+          dateTime: event.end,
+          timeZone: 'America/Chicago'
+        }
+      };
+
+      // Call the Flask backend to add event
+      const response = await window.calendarAPI.addEvent(eventData)
+      if (response) {
+        alert(`✅ Successfully added "${event.summary}" to your Google Calendar!`);
+
+        // Refresh the calendar iframes to show the new event
+        refreshCalendars();
+      } else {
+        alert(`❌ Failed to add event: ${result.error || 'Unknown error'}`);
+      }
+
+    } catch (error) {
+      console.error('Error adding event to calendar:', error);
+      alert('❌ Error adding event to calendar. Please try again.');
+    }
+  }
+
+  // ========== Refresh Calendar Iframes ==========
+  function refreshCalendars() {
+    // Refresh main calendar iframe
+    const mainIframe = document.getElementById('calendar-iframe');
+    if (mainIframe && mainIframe.src) {
+      mainIframe.src = mainIframe.src; // Force reload by resetting src
+    }
+
+    // Refresh today's agenda iframe
+    const agendaIframe = document.getElementById('today-agenda-iframe');
+    if (agendaIframe && agendaIframe.src) {
+      agendaIframe.src = agendaIframe.src; // Force reload by resetting src
+    }
+
+    console.log('📅 Calendars refreshed');
   }
 
   // ========== STEP 7: Search Function ==========
@@ -237,7 +344,7 @@ document.addEventListener("DOMContentLoaded", function() {
       let matchesSearch = false;
       if (searchText === '') {
         matchesSearch = true; // Empty search matches everything
-      } else if (event.title && event.title.toLowerCase().includes(searchText)) {
+      } else if (event.summary && event.summary.toLowerCase().includes(searchText)) {
         matchesSearch = true;
       } else if (event.description && event.description.toLowerCase().includes(searchText)) {
         matchesSearch = true;
