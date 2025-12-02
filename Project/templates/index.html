@@ -82,20 +82,34 @@
       </div>
     </section>
     
-    <section class="browse-section">
-      <div class="browse-header">
-        <h3>Browse Events Near UIUC</h3>
-        <div class="search-filter">
-          <input type="text" id="search-events" placeholder="Search events..." />
-          <select id="filter-category">
-            <option value="all">All Categories</option>
-          </select>
+    <div class="events-sections-wrapper">
+      <!-- Browse Events Section -->
+      <section class="browse-section">
+        <div class="browse-header">
+          <h3>Browse Events Near UIUC</h3>
+          <div class="search-filter">
+            <input type="text" id="search-events" placeholder="Search events..." />
+            <select id="filter-category">
+              <option value="all">All Categories</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div id="browse-events" class="browse-container">
-        <!-- Events will be dynamically loaded here -->
-      </div>
-    </section>
+        <div id="browse-events" class="browse-container">
+          <!-- Events will be dynamically loaded here -->
+        </div>
+      </section>
+
+      <!-- Email Events Section -->
+      <section class="email-events-section" id="email-events-section" style="display: none;">
+        <div class="browse-header">
+          <h3>Email Events</h3>
+          <button id="clear-email-events" class="clear-btn">✕ Clear</button>
+        </div>
+        <div id="email-events" class="browse-container">
+          <!-- Email events will be displayed here -->
+        </div>
+      </section>
+    </div>
 
     <!-- Event Detail Modal -->
     <div id="detail-modal" class="modal">
@@ -169,6 +183,9 @@
     const GOOGLE_CLIENT_ID = '985871831044-dao07nebhsmstom8althg48hfrg97oeo.apps.googleusercontent.com';
     const GOOGLE_API_KEY = 'AIzaSyA7uXknS3AhXWG5IpcfdnI2eNo6-6hcmMA';
   </script>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
 
   <script src="{{ url_for('static', filename='calendar-connect.js') }}"></script>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
