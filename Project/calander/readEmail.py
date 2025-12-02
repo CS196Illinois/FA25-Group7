@@ -14,12 +14,16 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import re
+from pathlib import Path
 
 load_dotenv()
 TENANT_ID = os.getenv("TENANT_ID")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 OPENAI_KEY = os.getenv("CHAT_KEY")
+
+# Base directory for this module (ensures file lookups work regardless of cwd)
+BASE_DIR = Path(__file__).resolve().parent
 
 def fetch_emails(tenant_id, client_id, amount):
     authority = f"https://login.microsoftonline.com/{tenant_id}"
@@ -66,7 +70,7 @@ def parse_email_content(email_content):
 
     client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=OPENAI_KEY)
 
-    with open("prompt.txt", "r", encoding="utf-8") as f:
+    with open(BASE_DIR / "prompt.txt", "r", encoding="utf-8") as f:
         guidlines = f.read()
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
@@ -109,18 +113,20 @@ def get_calendar_service():
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
     creds = None
-    if os.path.exists("token.json"):
+    token_path = BASE_DIR / "token.json"
+    if token_path.exists():
         from google.oauth2.credentials import Credentials
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+        creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(google.auth.transport.requests.Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            cred_path = BASE_DIR / "credentials.json"
+            flow = InstalledAppFlow.from_client_secrets_file(str(cred_path), SCOPES)
             creds = flow.run_local_server(port=0)
 
-        with open("token.json", "w") as token:
+        with open(token_path, "w") as token:
             token.write(creds.to_json())
 
     return build("calendar", "v3", credentials=creds)
