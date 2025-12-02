@@ -1,0 +1,13 @@
+Flask
+beautifulsoup4
+lxml
+playwright
+requests
+firebase_admin
+python-dotenv
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+msal
+openai
