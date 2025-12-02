@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", function() {
   async function addToCalendar(event) {
     // Check if user is connected to Google Calendar
     if (!window.calendarAPI || !window.calendarAPI.isConnected()) {
-      alert('Please connect your Google Calendar first!');
+      showToast('Not Connected', 'Please connect your Google Calendar first!', 'warning');
       return;
     }
 
@@ -327,17 +327,17 @@ document.addEventListener("DOMContentLoaded", function() {
       // Call the Flask backend to add event
       const response = await window.calendarAPI.addEvent(eventData)
       if (response) {
-        alert(`✅ Successfully added "${event.summary}" to your Google Calendar!`);
+        showToast('Event Added', `"${event.summary}" was added to your Google Calendar`, 'success');
 
         // Refresh the calendar iframes to show the new event
         refreshCalendars();
       } else {
-        alert(`❌ Failed to add event: ${result.error || 'Unknown error'}`);
+        showToast('Failed', 'Could not add event to calendar', 'error');
       }
 
     } catch (error) {
       console.error('Error adding event to calendar:', error);
-      alert('❌ Error adding event to calendar. Please try again.');
+      showToast('Error', 'Failed to add event to calendar. Please try again.', 'error');
     }
   }
 
