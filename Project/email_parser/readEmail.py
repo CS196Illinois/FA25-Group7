@@ -14,6 +14,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import re
+from pathlib import Path
 
 
 load_dotenv()
@@ -21,6 +22,9 @@ TENANT_ID = os.getenv("TENANT_ID")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 OPENAI_KEY = os.getenv("CHAT_KEY")
+
+# Get the directory where this script is located
+BASE_DIR = Path(__file__).resolve().parent
 
 def fetch_emails(tenant_id, client_id, amount):
     authority = f"https://login.microsoftonline.com/{tenant_id}"
@@ -66,7 +70,7 @@ def parse_email_content(email_content):
 
     client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=OPENAI_KEY)
 
-    with open("prompt.txt", "r", encoding="utf-8") as f:
+    with open(BASE_DIR / "prompt.txt", "r", encoding="utf-8") as f:
         guidlines = f.read()
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
