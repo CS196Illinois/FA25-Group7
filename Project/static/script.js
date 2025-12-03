@@ -54,12 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Add from Email button - Open email modal
-  const addEmailBtn = document.getElementById("add-email");
+  // Parse emails button - Open email modal
+  const parseEmailsBtn = document.getElementById("parse-emails-btn");
   const emailModal = document.getElementById("email-modal");
 
-  if (addEmailBtn) {
-    addEmailBtn.addEventListener("click", () => {
+  if (parseEmailsBtn) {
+    parseEmailsBtn.addEventListener("click", () => {
       emailModal.style.display = "flex";
     });
   }
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Process emails button
+  // Process emails button (in modal)
   const processEmailsBtn = document.getElementById("process-emails-btn");
   if (processEmailsBtn) {
     processEmailsBtn.addEventListener("click", async () => {
@@ -256,7 +256,7 @@ async function handleProcessEmails() {
     return;
   }
 
-  // Close modal immediately and show processing toast
+  // Close modal immediately
   document.getElementById("email-modal").style.display = "none";
 
   showToast(
@@ -272,9 +272,7 @@ async function handleProcessEmails() {
     processBtn.textContent = "Processing...";
 
     // Prepare email events section
-    const emailEventsSection = document.getElementById("email-events-section");
     const emailEventsContainer = document.getElementById("email-events");
-    emailEventsSection.style.display = "block";
     emailEventsContainer.innerHTML = "";
 
     let eventCount = 0;
@@ -401,77 +399,6 @@ async function handleProcessEmails() {
   }
 }
 
-// Display email events progressively with animation
-async function displayEmailEventsProgressively(events) {
-  const emailEventsSection = document.getElementById("email-events-section");
-  const emailEventsContainer = document.getElementById("email-events");
-
-  // Show the email events section
-  emailEventsSection.style.display = "block";
-
-  // Clear previous events
-  emailEventsContainer.innerHTML = "";
-
-  // If no events, show message
-  if (!events || events.length === 0) {
-    emailEventsContainer.innerHTML = '<p class="no-events-text">No events found in emails</p>';
-    return;
-  }
-
-  // Add events one by one with delay for smooth animation
-  for (let i = 0; i < events.length; i++) {
-    const card = createEmailEventCard(events[i]);
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    emailEventsContainer.appendChild(card);
-
-    // Animate in
-    setTimeout(() => {
-      card.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-    }, 50);
-
-    // Small delay between each card (150ms)
-    if (i < events.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 150));
-    }
-  }
-
-  // Update the processing toast with count
-  const toastContainer = document.getElementById('toast-container');
-  const processingToast = toastContainer.querySelector('.toast.info');
-  if (processingToast) {
-    const toastMessage = processingToast.querySelector('.toast-message');
-    if (toastMessage) {
-      toastMessage.textContent = `Found ${events.length} event${events.length !== 1 ? 's' : ''}! Adding to display...`;
-    }
-  }
-}
-
-// Display email events in the dedicated section (instant, no animation)
-function displayEmailEvents(events) {
-  const emailEventsSection = document.getElementById("email-events-section");
-  const emailEventsContainer = document.getElementById("email-events");
-
-  // Show the email events section
-  emailEventsSection.style.display = "block";
-
-  // Clear previous events
-  emailEventsContainer.innerHTML = "";
-
-  // If no events, show message
-  if (!events || events.length === 0) {
-    emailEventsContainer.innerHTML = '<p class="no-events-text">No events found in emails</p>';
-    return;
-  }
-
-  // Create cards for each event
-  events.forEach(event => {
-    const card = createEmailEventCard(event);
-    emailEventsContainer.appendChild(card);
-  });
-}
 
 // Create event card for email events (similar to browse events)
 function createEmailEventCard(event) {
@@ -574,16 +501,3 @@ async function addEmailEventToCalendar(event) {
   }
 }
 
-// Clear email events
-document.addEventListener("DOMContentLoaded", () => {
-  const clearEmailEventsBtn = document.getElementById("clear-email-events");
-  if (clearEmailEventsBtn) {
-    clearEmailEventsBtn.addEventListener("click", () => {
-      const emailEventsSection = document.getElementById("email-events-section");
-      const emailEventsContainer = document.getElementById("email-events");
-
-      emailEventsContainer.innerHTML = "";
-      emailEventsSection.style.display = "none";
-    });
-  }
-});

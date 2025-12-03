@@ -10,17 +10,17 @@ import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.6.0
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-apiKey: "AIzaSyAKfE_dl9zp5U_BVaqOmsdbjKjb-2KOlFA",
-authDomain: "eventflowdatabase.firebaseapp.com",
-databaseURL: "https://eventflowdatabase-default-rtdb.firebaseio.com",
-projectId: "eventflowdatabase",
-storageBucket: "eventflowdatabase.firebasestorage.app",
-messagingSenderId: "611561258590",
-appId: "1:611561258590:web:16a4d352f06bdbbfad3ecf",
-measurementId: "G-0C45LS13MN"
+    apiKey: "AIzaSyAKfE_dl9zp5U_BVaqOmsdbjKjb-2KOlFA",
+    authDomain: "eventflowdatabase.firebaseapp.com",
+    databaseURL: "https://eventflowdatabase-default-rtdb.firebaseio.com",
+    projectId: "eventflowdatabase",
+    storageBucket: "eventflowdatabase.firebasestorage.app",
+    messagingSenderId: "611561258590",
+    appId: "1:611561258590:web:16a4d352f06bdbbfad3ecf",
+    measurementId: "G-0C45LS13MN"
 };
 
-  // Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         let eventsData = null;
         if (snapshot.exists()) {
-            eventsData =  snapshot.val();
+            eventsData = snapshot.val();
         }
 
         // Check if we got data back

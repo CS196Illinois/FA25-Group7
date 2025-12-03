@@ -9,8 +9,8 @@ from pathlib import Path
 # Base directory for this module
 BASE_DIR = Path(__file__).resolve().parent
 
-# Add the calander directory to the Python path so we can import from readEmail
-sys.path.append(os.path.join(os.path.dirname(__file__), 'calander'))
+# Add the email_parser directory to the Python path so we can import from readEmail
+sys.path.append(os.path.join(os.path.dirname(__file__), 'email_parser'))
 
 from readEmail import (
     fetch_emails,

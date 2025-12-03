@@ -1,0 +1,6 @@
+Flask
+beautifulsoup4
+lxml
+playwright
+requests
+firebase_admin

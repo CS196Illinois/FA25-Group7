@@ -39,7 +39,6 @@
             <h2>Your Calendar</h2>
             <div class="calendar-actions">
               <button id="refresh-calendar-btn" class="refresh-btn">🔄 Refresh</button>
-              <button id="add-email">📧 Add from Email</button>
               <button id="add-event">+ Add Event</button>
             </div>
           </div>
@@ -100,13 +99,13 @@
       </section>
 
       <!-- Email Events Section -->
-      <section class="email-events-section" id="email-events-section" style="display: none;">
+      <section class="email-events-section" id="email-events-section">
         <div class="browse-header">
           <h3>Email Events</h3>
-          <button id="clear-email-events" class="clear-btn">✕ Clear</button>
+          <button id="parse-emails-btn" class="parse-emails-btn">📧 Parse Emails</button>
         </div>
         <div id="email-events" class="browse-container">
-          <!-- Email events will be displayed here -->
+          <p class="no-events-text">Click "Parse Emails" to scan your Outlook inbox for events</p>
         </div>
       </section>
     </div>
@@ -163,9 +162,9 @@
   <div id="email-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal" id="close-email-modal">&times;</span>
-      <h3>Add Events from Email</h3>
+      <h3>Parse Emails for Events</h3>
       <p style="color: #666; margin-bottom: 20px;">
-        This will scan your recent Outlook emails for calendar events and add them to your Google Calendar.
+        This will scan your recent Outlook emails for calendar events.
       </p>
       <label for="email-amount">Number of emails to scan (1-25):</label>
       <input type="number" id="email-amount" min="1" max="25" value="5" style="width: 100%; margin-bottom: 20px;" />
