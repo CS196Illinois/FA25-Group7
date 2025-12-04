@@ -14,7 +14,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'email_parser'))
 
 from readEmail import (
     fetch_emails,
-    parse_email_content
+    parse_email_content,
+    get_calendar_service
 )
 
 load_dotenv()
@@ -127,30 +128,143 @@ def process_emails_stream():
     return app.response_class(generate(), mimetype='text/event-stream')
 
 
+# Test endpoint
+@app.route("/api/test", methods=["GET"])
+def test():
+    return jsonify({"status": "API is working!"}), 200
+
+# Parse custom text endpoint
+@app.route("/api/parse_text", methods=["POST"])
+def parse_text():
+    """Parse custom text input to extract event information"""
+    print("\n" + "="*50)
+    print("PARSE TEXT ENDPOINT CALLED")
+    print("="*50)
+    try:
+        data = request.json
+        text = data.get("text", "")
+
+        if not text:
+            return jsonify({"error": "No text provided"}), 400
+
+        print(f"Parsing text: {text}")
+
+        # Use the same parse_email_content function with custom text
+        parsed = parse_email_content(text)
+        print(f"Parsed result: {parsed}")
+
+        if parsed and "events" in parsed and len(parsed["events"]) > 0:
+            # Get the first event (assume single event from custom text)
+            event = parsed["events"][0]
+            print(f"First event: {event}")
+
+            # Filter out JUNK events
+            if event.get("description", "").startswith("JUNK"):
+                return jsonify({"error": "This doesn't appear to be a calendar event"}), 400
+
+            # Format the event
+            print(f"Formatting event...")
+            formatted_event = format_email_event(event)
+            print(f"Formatted event: {formatted_event}")
+            return jsonify({"status": "success", "event": formatted_event})
+        else:
+            print(f"No events found in parsed result")
+            return jsonify({"error": "Could not extract event information from text"}), 400
+
+    except Exception as e:
+        import traceback
+        print(f"Error parsing text: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
+# Add event to Google Calendar
+@app.route("/add_event", methods=["POST"])
+def add_event():
+    """Add an event to Google Calendar"""
+    try:
+        data = request.json
+        summary = data.get("summary")
+        start = data.get("start")
+        end = data.get("end")
+        location = data.get("location", "")
+        description = data.get("description", "")
+
+        if not summary or not start or not end:
+            return jsonify({"error": "Missing required fields (summary, start, end)"}), 400
+
+        # Get Google Calendar service
+        service = get_calendar_service()
+
+        # Create event object
+        event = {
+            "summary": summary,
+            "location": location,
+            "description": description,
+            "start": {
+                "dateTime": start,
+                "timeZone": "America/Chicago",
+            },
+            "end": {
+                "dateTime": end,
+                "timeZone": "America/Chicago",
+            },
+        }
+
+        # Insert event into calendar
+        created_event = service.events().insert(calendarId="primary", body=event).execute()
+
+        return jsonify({
+            "status": "success",
+            "event_id": created_event.get("id"),
+            "event_link": created_event.get("htmlLink")
+        }), 200
+
+    except Exception as e:
+        import traceback
+        print(f"Error adding event to calendar: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+
 def format_email_event(event):
     """Format parsed email event for display"""
     # Parse dates and times
     start_date = event.get("start_date")
     end_date = event.get("end_date", start_date)
-    start_time = event.get("start_time", "12:00 AM")
-    end_time = event.get("end_time", "11:59 PM")
+    start_time = event.get("start_time", "12:00")
+    end_time = event.get("end_time", "23:59")
 
     # Convert to ISO datetime format for consistency with browse events
     try:
-        start_dt = datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %I:%M %p")
+        # Try 24-hour format first (HH:MM)
+        try:
+            start_dt = datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
+        except ValueError:
+            # Fall back to 12-hour format (HH:MM AM/PM)
+            start_dt = datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %I:%M %p")
+
         start_iso = start_dt.strftime("%Y-%m-%dT%H:%M:%S-06:00")
         # Format readable date
         formatted_start_date = start_dt.strftime("%B %d, %Y")
-    except:
+    except Exception as e:
         # Fallback if parsing fails
+        print(f"Error parsing start date/time: {e}")
         start_iso = datetime.now().strftime("%Y-%m-%dT%H:%M:%S-06:00")
-        formatted_start_date = start_date
+        formatted_start_date = start_date if start_date else "Unknown Date"
 
     try:
-        end_dt = datetime.strptime(f"{end_date} {end_time}", "%Y-%m-%d %I:%M %p")
+        # Try 24-hour format first (HH:MM)
+        try:
+            end_dt = datetime.strptime(f"{end_date} {end_time}", "%Y-%m-%d %H:%M")
+        except ValueError:
+            # Fall back to 12-hour format (HH:MM AM/PM)
+            end_dt = datetime.strptime(f"{end_date} {end_time}", "%Y-%m-%d %I:%M %p")
+
         end_iso = end_dt.strftime("%Y-%m-%dT%H:%M:%S-06:00")
-    except:
+    except Exception as e:
         # Fallback if parsing fails
+        print(f"Error parsing end date/time: {e}")
         end_iso = datetime.now().strftime("%Y-%m-%dT%H:%M:%S-06:00")
 
     return {

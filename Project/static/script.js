@@ -46,6 +46,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Tab switching for Add Event modal
+  const manualTab = document.getElementById("manual-tab");
+  const aiTab = document.getElementById("ai-tab");
+  const manualForm = document.getElementById("manual-form");
+  const aiForm = document.getElementById("ai-form");
+
+  if (manualTab && aiTab) {
+    manualTab.addEventListener("click", () => {
+      manualTab.classList.add("active");
+      aiTab.classList.remove("active");
+      manualForm.classList.add("active");
+      aiForm.classList.remove("active");
+    });
+
+    aiTab.addEventListener("click", () => {
+      aiTab.classList.add("active");
+      manualTab.classList.remove("active");
+      aiForm.classList.add("active");
+      manualForm.classList.remove("active");
+    });
+  }
+
+  // Parse AI text button
+  const parseTextBtn = document.getElementById("parse-event-text");
+  if (parseTextBtn) {
+    parseTextBtn.addEventListener("click", async () => {
+      await handleParseText();
+    });
+  }
+
+  // Close AI form button
+  const closeModalAiBtn = document.getElementById("close-modal-ai");
+  if (closeModalAiBtn) {
+    closeModalAiBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      clearEventForm();
+    });
+  }
+
   // Save Event button
   const saveEventBtn = document.getElementById("save-event");
   if (saveEventBtn) {
@@ -165,6 +204,74 @@ async function handleSaveEvent() {
   }
 }
 
+async function handleParseText() {
+  const textInput = document.getElementById("ai-event-text");
+  const text = textInput.value.trim();
+  const parseBtn = document.getElementById("parse-event-text");
+  const originalText = parseBtn.textContent;
+
+  if (!text) {
+    showToast("Empty Input", "Please enter some text describing your event", "warning");
+    return;
+  }
+
+  // Disable button and show loading state
+  parseBtn.disabled = true;
+  parseBtn.textContent = "Parsing...";
+
+  try {
+    const response = await fetch("/api/parse_text", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.status === "success") {
+      const event = data.event;
+
+      // Close modal
+      document.getElementById("event-modal").style.display = "none";
+      clearEventForm();
+
+      // Call Google Calendar API to add event
+      const calendarResponse = await fetch("/add_event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          summary: event.summary,
+          description: event.description,
+          location: event.location,
+          start: event.start,
+          end: event.end,
+        }),
+      });
+
+      const calendarData = await calendarResponse.json();
+
+      if (calendarResponse.ok) {
+        showToast("Event Created!", "Your event has been added to Google Calendar", "success");
+      } else {
+        showToast("Error", calendarData.error || "Failed to add event to calendar", "error");
+      }
+    } else {
+      showToast("Parse Error", data.error || "Could not parse event from text", "error");
+    }
+  } catch (error) {
+    console.error("Error parsing text:", error);
+    showToast("Error", "Failed to parse text. Please try again.", "error");
+  } finally {
+    // Re-enable button
+    parseBtn.disabled = false;
+    parseBtn.textContent = originalText;
+  }
+}
+
 function clearEventForm() {
   document.getElementById("event-title").value = "";
   document.getElementById("event-date").value = "";
@@ -172,6 +279,23 @@ function clearEventForm() {
   const descField = document.getElementById("event-description");
   if (descField) {
     descField.value = "";
+  }
+  const aiTextField = document.getElementById("ai-event-text");
+  if (aiTextField) {
+    aiTextField.value = "";
+  }
+
+  // Reset to manual tab
+  const manualTab = document.getElementById("manual-tab");
+  const aiTab = document.getElementById("ai-tab");
+  const manualForm = document.getElementById("manual-form");
+  const aiForm = document.getElementById("ai-form");
+
+  if (manualTab && aiTab) {
+    manualTab.classList.add("active");
+    aiTab.classList.remove("active");
+    manualForm.classList.add("active");
+    aiForm.classList.remove("active");
   }
 }
 

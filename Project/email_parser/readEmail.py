@@ -72,11 +72,26 @@ def parse_email_content(email_content):
 
     with open(BASE_DIR / "prompt.txt", "r", encoding="utf-8") as f:
         guidlines = f.read()
+
+    # Get current date and time for context
+    now = datetime.now()
+    current_date = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M")
+    current_day = now.strftime("%A")
+
+    # Add context to the email content
+    contextual_content = f"""Current Date and Time Context:
+- Today's date: {current_date} ({current_day})
+- Current time: {current_time}
+
+Email/Text to parse:
+{email_content}"""
+
     response = client.chat.completions.create(
         model="openai/gpt-oss-120b",
         messages=[
             {"role": "system", "content": guidlines},
-            {"role": "user", "content": email_content},
+            {"role": "user", "content": contextual_content},
         ], 
         response_format={ "type": "json_object" },
 
@@ -89,21 +104,39 @@ def parse_email_content(email_content):
     print(raw_output)
 
     try:
+        # First attempt: parse as-is
         parsed_json = json.loads(raw_output)
-    except json.JSONDecodeError:
-        print("Model returned invalid JSON. Raw output was:\n", raw_output)
-        with open("last_response.json", "w", encoding="utf-8") as f:
+    except json.JSONDecodeError as e:
+        print(f"Model returned invalid JSON: {e}")
+        print("Raw output was:\n", raw_output)
+        with open(BASE_DIR / "last_response.json", "w", encoding="utf-8") as f:
             f.write(raw_output)
 
         # Try to recover by trimming around first/last braces
         try:
-            start = raw_output.find("{")     
+            start = raw_output.find("{")
             end = raw_output.rfind("}") + 1
             cleaned = raw_output[start:end]
             parsed_json = json.loads(cleaned)
-        except Exception:
+            print("Successfully recovered JSON after trimming")
+        except Exception as e2:
+            print(f"Failed to recover JSON: {e2}")
             # If still broken, return empty structure instead of crashing
             parsed_json = {"events": []}
+
+    # Validate and clean events (remove any with duplicate or missing required fields)
+    if "events" in parsed_json and isinstance(parsed_json["events"], list):
+        cleaned_events = []
+        required_fields = ["title", "start_date", "end_date", "start_time", "end_time", "location", "description"]
+
+        for event in parsed_json["events"]:
+            # Check if event has all required fields (as dict keys)
+            if all(field in event for field in required_fields):
+                cleaned_events.append(event)
+            else:
+                print(f"Skipping malformed event: {event}")
+
+        parsed_json["events"] = cleaned_events
 
     return parsed_json
 
@@ -113,18 +146,21 @@ def get_calendar_service():
     SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
     creds = None
-    if os.path.exists("token.json"):
+    token_path = BASE_DIR / "token.json"
+    credentials_path = BASE_DIR / "credentials.json"
+
+    if os.path.exists(token_path):
         from google.oauth2.credentials import Credentials
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+        creds = Credentials.from_authorized_user_file(str(token_path), SCOPES)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(google.auth.transport.requests.Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(str(credentials_path), SCOPES)
             creds = flow.run_local_server(port=0)
 
-        with open("token.json", "w") as token:
+        with open(token_path, "w") as token:
             token.write(creds.to_json())
 
     return build("calendar", "v3", credentials=creds)

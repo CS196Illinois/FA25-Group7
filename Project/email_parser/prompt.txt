@@ -16,6 +16,8 @@ Do NOT wrap the JSON in code blocks or backticks.
 
 The JSON MUST BE COMPLETE. Make sure to include closing "}" and "]", and do not stop generating part way through the response.
 
+CRITICAL: Each field name must appear EXACTLY ONCE per event object. Do NOT repeat field names with different values.
+
 REQUIRED FIELDS FOR EACH EVENT
 Every event object must contain ALL of these fields (use null if data is unavailable):
 

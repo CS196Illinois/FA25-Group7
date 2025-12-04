@@ -682,6 +682,55 @@ header h1 {
   min-height: 100px;
 }
 
+/* Modal Tabs */
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: var(--primary-dark);
+  background: var(--gray-50);
+}
+
+.tab-btn.active {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
+}
+
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+.form-hint {
+  color: var(--gray-600);
+  font-size: 13px;
+  margin: -8px 0 0 0;
+  font-style: italic;
+}
+
 .modal-buttons {
   display: flex;
   gap: 12px;

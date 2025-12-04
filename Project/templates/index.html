@@ -147,13 +147,33 @@
     <div class="modal-content">
       <span class="close-modal" id="close-add-event">&times;</span>
       <h3>Add New Event</h3>
-      <input type="text" id="event-title" placeholder="Event Title" required />
-      <input type="datetime-local" id="event-date" required />
-      <input type="text" id="event-location" placeholder="Location (optional)" />
-      <textarea id="event-description" placeholder="Description (optional)" rows="3"></textarea>
-      <div class="modal-buttons">
-        <button id="save-event" class="btn-primary">Save to Google Calendar</button>
-        <button id="close-modal" class="btn-secondary">Cancel</button>
+
+      <!-- Tab Toggle -->
+      <div class="modal-tabs">
+        <button id="manual-tab" class="tab-btn active">Manual Entry</button>
+        <button id="ai-tab" class="tab-btn">AI Parse Text</button>
+      </div>
+
+      <!-- Manual Entry Form -->
+      <div id="manual-form" class="tab-content active">
+        <input type="text" id="event-title" placeholder="Event Title" required />
+        <input type="datetime-local" id="event-date" required />
+        <input type="text" id="event-location" placeholder="Location (optional)" />
+        <textarea id="event-description" placeholder="Description (optional)" rows="3"></textarea>
+        <div class="modal-buttons">
+          <button id="save-event" class="btn-primary">Save to Google Calendar</button>
+          <button id="close-modal" class="btn-secondary">Cancel</button>
+        </div>
+      </div>
+
+      <!-- AI Text Parse Form -->
+      <div id="ai-form" class="tab-content">
+        <p class="form-hint">Enter text describing your event (e.g., "Team meeting tomorrow at 3pm in Conference Room A")</p>
+        <textarea id="ai-event-text" placeholder="Describe your event in natural language..." rows="5"></textarea>
+        <div class="modal-buttons">
+          <button id="parse-event-text" class="btn-primary">Parse & Create Event</button>
+          <button id="close-modal-ai" class="btn-secondary">Cancel</button>
+        </div>
       </div>
     </div>
   </div>
