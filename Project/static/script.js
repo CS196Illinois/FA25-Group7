@@ -178,10 +178,7 @@ async function handleSaveEvent() {
 
       showToast("Event Added", "Event successfully added to your Google Calendar", "success");
 
-      // Refresh the events display
-      if (typeof loadUserEvents === 'function') {
-        await loadUserEvents();
-      }
+      refreshCalendars();
 
       // Close modal and clear form
       document.getElementById("event-modal").style.display = "none";
@@ -256,6 +253,7 @@ async function handleParseText() {
 
       if (calendarResponse.ok) {
         showToast("Event Created!", "Your event has been added to Google Calendar", "success");
+        refreshCalendars();
       } else {
         showToast("Error", calendarData.error || "Failed to add event to calendar", "error");
       }
@@ -311,6 +309,22 @@ function updateCurrentDate() {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dateElement.textContent = new Date().toLocaleDateString('en-US', options);
   }
+}
+
+function refreshCalendars() {
+  // Refresh main calendar iframe
+  const mainIframe = document.getElementById('calendar-iframe');
+  if (mainIframe && mainIframe.src) {
+    mainIframe.src = mainIframe.src; // Force reload by resetting src
+  }
+
+  // Refresh today's agenda iframe
+  const agendaIframe = document.getElementById('today-agenda-iframe');
+  if (agendaIframe && agendaIframe.src) {
+    agendaIframe.src = agendaIframe.src; // Force reload by resetting src
+  }
+
+  console.log('📅 Calendars refreshed');
 }
 
 // Initialize current date
@@ -615,6 +629,7 @@ async function addEmailEventToCalendar(event) {
 
     const response = await window.calendarAPI.addEvent(eventData);
     if (response) {
+      refreshCalendars();
       showToast('Event Added', `"${event.summary}" was added to your Google Calendar`, 'success');
     } else {
       showToast('Failed', 'Could not add event to calendar', 'error');

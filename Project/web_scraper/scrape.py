@@ -373,18 +373,18 @@ def scrape_athletics():
 def scrape():
     global event_count
     event_count = 0
-    combined_json_data = {}
+    combined_data = {}
 
-    json_data_state_farm = scrape_state_farm()
-    combined_json_data = combined_json_data | json_data_state_farm
+    state_farm_data = scrape_state_farm()
+    combined_data = combined_data | state_farm_data
 
-    json_data_athletics = scrape_athletics()
-    combined_json_data = combined_json_data | json_data_athletics
+    athletics_data = scrape_athletics()
+    combined_data = combined_data | athletics_data
 
-    json_data_general = scrape_general()
-    combined_json_data = combined_json_data | json_data_general
+    general_data = scrape_general()
+    combined_data = combined_data | general_data
 
-    return combined_json_data
+    return combined_data
 #-----------------------AUTO SCRAPE-----------------------#
 # Creates the modal app
 app = modal.App("daily-scraper")

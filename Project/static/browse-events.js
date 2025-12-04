@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Convert the events object from the server into an array
   async function loadEvents() {
     try {
-        // Fetch events from the /events endpoint
+        // Fetch events from the firesebase database
         const eventsRef = ref(db, "scraped_events");
         const snapshot = await get(eventsRef);
         
