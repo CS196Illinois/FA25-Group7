@@ -79,57 +79,66 @@ The scraper is now integrated with Modal for serverless execution:
 
 **Template ([templates/index.html](Project/templates/index.html))**
 Single-page interface with:
-- Calendar grid with month/year navigation using arrow buttons (← →)
-- Day-of-week headers (Sun-Sat) for better calendar readability
-- Events panel for selected day
-- Upcoming events section (horizontal list)
-- Browse events section with search/filter capabilities
-- Event detail modal (800px wide) for comprehensive event information
-- Add event modal form
+- Google Calendar iframe integration (syncs with user's calendar)
+- Browse events section with Firebase real-time database
+- Email events section with Outlook email parsing
+- Event detail modal and add event modal
+- Toast notification system
 
-**JavaScript ([static/script.js](Project/static/script.js))**
-Handles:
-- Calendar rendering with dynamic month/year (fixes to use current view instead of constant today)
-- Month navigation with arrow buttons
-- Event loading via `/events` API
-- Event creation (POST to `/events`)
-- Modal interactions
-- Current day highlighting
+**JavaScript Module Architecture**
+The frontend uses ES6 modules with a clean separation of concerns:
 
-**JavaScript ([static/browse-events.js](Project/static/browse-events.js))**
-Dedicated module for browse events section:
-- Chronological event sorting by date and time (bubble sort)
-- Client-side filtering to hide past events
-- Search functionality across title, description, and location
-- Category/tag filtering
-- "All Day" display for events running 12:00 AM - 11:59 PM
-- Event detail modal with full information display
-- Dynamic event card generation
+**[static/script.js](Project/static/script.js)** - Core utilities and UI (exports shared functions):
+- `formatDate()`, `formatTime()`, `parseEventData()` - Date/time formatting utilities
+- `createEventCard(event, options)` - Unified event card creation (used by all sections)
+- `showEventDetails(event, hideEventLink)` - Event detail modal
+- `showToast()` - Toast notification system
+- `refreshCalendars()` - Refresh Google Calendar iframes
+- Email parsing UI and streaming event display
+- Add event modal handling (manual + AI text parsing)
+
+**[static/browse-events.js](Project/static/browse-events.js)** - Browse events (imports from script.js):
+- Imports: `formatDate`, `formatTime`, `parseEventData`, `createEventCard`, `showEventDetails`, `showToast`, `refreshCalendars`
+- Firebase integration for scraped events
+- Event sorting, filtering, and search
+- Category filtering
+
+**[static/calendar-connect.js](Project/static/calendar-connect.js)** - Google Calendar integration (exports):
+- `addEventToGoogleCalendar(event)` - Main function to add events to Google Calendar
+- `isCalendarConnected()` - Check if user is connected
+- Google API OAuth2 authentication flow
+- Calendar iframe management
+
+**Key Architecture Pattern:**
+```
+script.js (core utilities) ⟷ calendar-connect.js (calendar functions)
+           ↑
+    browse-events.js (imports both)
+```
 
 **Styling ([static/style.css](Project/static/style.css))**
-Clean, modern design with:
-- Flexbox and CSS Grid layouts
-- Styled month control buttons with hover effects
-- Responsive event cards in browse section
-- Wide detail modal (800px) for better readability
-- Color-coded event categories
-- Smooth transitions and hover states
+- `.event-card` class for all event cards (unified styling)
+- Email events section has custom grid sizing (300px minimum width)
+- Toast notification styles
+- Modal styles (800px wide detail modal)
 
 ### Data Flow
 
 ```
-Web Sources → scrape.py (via Modal) → Supabase (scraped_event_data table)
-                                              ↓
-                                           app.py → Frontend (dynamic event cards)
-                                              ↓
-                              (optional) add_scraped_events.py → Google Calendar
+Web Sources → scrape.py (Modal) → Firebase Realtime Database
+                                          ↓
+                                   browse-events.js (frontend)
+                                          ↓
+User Outlook Email → app.py (Flask) → parse_email.py (OpenAI) → Email event cards
+                                          ↓
+                          User Google Calendar ← calendar-connect.js (OAuth2)
 ```
 
-**Architecture:** The complete data pipeline is now unified through Supabase:
-1. **Modal scraper** runs weekly, scrapes 1000+ events, stores in Supabase
-2. **Flask backend** reads latest scraped data from Supabase on each request
-3. **Frontend** dynamically renders event cards with search/filter capabilities
-4. **No local JSON files** - all data flows through Supabase
+**Event Data Pipeline:**
+1. **Scraped Events**: Modal scraper runs weekly → Firebase → Browse events section
+2. **Email Events**: User triggers parse → Flask SSE stream → Email events section
+3. **Calendar Sync**: Users can add any event → Google Calendar via OAuth2
+4. **Event Cards**: All events use `createEventCard()` with `parseEventData()` for consistent 12-hour time formatting
 
 ### Calendar Integration
 
@@ -137,22 +146,28 @@ Web Sources → scrape.py (via Modal) → Supabase (scraped_event_data table)
 
 ## Key Files
 
-- [Project/app.py](Project/app.py) - Flask web server with Supabase integration
-- [Project/scrape.py](Project/scrape.py) - All web scraping logic with Modal scheduling
-- [Project/templates/index.html](Project/templates/index.html) - Main HTML template
-- [Project/static/script.js](Project/static/script.js) - Calendar rendering and navigation
-- [Project/static/browse-events.js](Project/static/browse-events.js) - Event browsing, sorting, and filtering
-- [Project/static/style.css](Project/static/style.css) - Complete application styling
-- [Project/calendar/add_scraped_events.py](Project/calendar/add_scraped_events.py) - Google Calendar sync
-- [Project/.env](Project/.env) - Supabase credentials (not committed to git)
+**Backend:**
+- [Project/app.py](Project/app.py) - Flask server with email parsing endpoints (`/api/process_emails_stream`, `/api/parse_text`)
+- [Project/email_parser/parse_email.py](Project/email_parser/parse_email.py) - Outlook email fetching + OpenAI event extraction
+- [Project/web_scraper/scrape.py](Project/web_scraper/scrape.py) - Modal scraper → Firebase (BeautifulSoup + Playwright)
+
+**Frontend:**
+- [Project/templates/index.html](Project/templates/index.html) - Single-page application template
+- [Project/static/script.js](Project/static/script.js) - **Core utilities** (exports shared functions)
+- [Project/static/calendar-connect.js](Project/static/calendar-connect.js) - **Google Calendar API** (exports calendar functions)
+- [Project/static/browse-events.js](Project/static/browse-events.js) - **Firebase events** (imports from script.js & calendar-connect.js)
+- [Project/static/style.css](Project/static/style.css) - Application styling
+
+**Configuration:**
+- [Project/config.py](Project/config.py) - API credentials (not committed, alternative to .env)
 
 ## Technology Stack
 
-- **Backend:** Flask, BeautifulSoup4, Playwright, Requests, Supabase client, python-dotenv
-- **Frontend:** Vanilla HTML/CSS/JavaScript (no frameworks, simple syntax for intro CS context)
-- **Storage:** Supabase (cloud PostgreSQL for all scraped event data)
-- **Scheduling:** Modal (serverless cron jobs, runs weekly on Mondays)
-- **APIs:** Google Calendar API (OAuth2)
+- **Backend:** Flask, BeautifulSoup4, Playwright, OpenAI API (GPT-4), Microsoft Graph API (Outlook)
+- **Frontend:** Vanilla ES6 JavaScript modules, Firebase Realtime Database, Google Calendar API (OAuth2)
+- **Storage:** Firebase Realtime Database for scraped events
+- **Scheduling:** Modal (serverless cron jobs, weekly scraper)
+- **APIs:** Google Calendar (OAuth2), Microsoft Graph (Outlook), OpenAI (event extraction)
 
 ## Recent Updates
 

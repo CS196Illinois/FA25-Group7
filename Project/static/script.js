@@ -1,3 +1,6 @@
+// Import calendar functions
+import { addEventToGoogleCalendar, isCalendarConnected } from './calendar-connect.js';
+
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("event-modal");
   const detailModal = document.getElementById("detail-modal");
@@ -157,28 +160,18 @@ async function handleSaveEvent() {
   const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // +1 hour default
 
   // Check if connected to Google Calendar
-  if (window.calendarAPI && window.calendarAPI.isConnected()) {
+  if (isCalendarConnected()) {
     try {
       // Add event directly to Google Calendar
       const event = {
         'summary': title,
         'location': location,
         'description': description,
-        'start': {
-          'dateTime': startDate.toISOString(),
-          'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-        },
-        'end': {
-          'dateTime': endDate.toISOString(),
-          'timeZone': Intl.DateTimeFormat().resolvedOptions().timeZone
-        }
+        'start': startDate.toISOString(),
+        'end': endDate.toISOString()
       };
 
-      await window.calendarAPI.addEvent(event);
-
-      showToast("Event Added", "Event successfully added to your Google Calendar", "success");
-
-      refreshCalendars();
+      await addEventToGoogleCalendar(event);
 
       // Close modal and clear form
       document.getElementById("event-modal").style.display = "none";
@@ -235,27 +228,10 @@ async function handleParseText() {
       clearEventForm();
 
       // Call Google Calendar API to add event
-      const calendarResponse = await fetch("/add_event", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          summary: event.summary,
-          description: event.description,
-          location: event.location,
-          start: event.start,
-          end: event.end,
-        }),
-      });
+      const response = await addEventToGoogleCalendar(event);
 
-      const calendarData = await calendarResponse.json();
-
-      if (calendarResponse.ok) {
-        showToast("Event Created!", "Your event has been added to Google Calendar", "success");
-        refreshCalendars();
-      } else {
-        showToast("Error", calendarData.error || "Failed to add event to calendar", "error");
+      if (!response) {
+        showToast("Error", "Failed to add event to calendar", "error");
       }
     } else {
       showToast("Parse Error", data.error || "Could not parse event from text", "error");
@@ -297,21 +273,53 @@ function clearEventForm() {
   }
 }
 
+// ========== DATE/TIME UTILITY FUNCTIONS ==========
+
 // Helper function to format date for Google Calendar URL
 function formatGoogleDate(date) {
   return date.toISOString().replace(/-|:|\.\d+/g, '');
 }
 
-// Update current date display
-function updateCurrentDate() {
-  const dateElement = document.getElementById('current-date');
-  if (dateElement) {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    dateElement.textContent = new Date().toLocaleDateString('en-US', options);
-  }
+// Format date as "Month Day, Year" (e.g., "November 30, 2025")
+export function formatDate(date) {
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const month = monthNames[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${month} ${day}, ${year}`;
 }
 
-function refreshCalendars() {
+// Format time as "HH:MM AM/PM"
+export function formatTime(date) {
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12; // Convert to 12-hour format
+  return `${hours}:${minutes} ${ampm}`;
+}
+
+// Parse event data from ISO datetime format to display format
+export function parseEventData(event) {
+  // Parse ISO datetime strings (e.g., "2025-11-30T14:00:00-06:00")
+  if (event.start && event.start.includes('T')) {
+    const startDate = new Date(event.start);
+    event.start_date = formatDate(startDate);
+    event.start_time = formatTime(startDate);
+  }
+
+  if (event.end && event.end.includes('T')) {
+    const endDate = new Date(event.end);
+    event.end_date = formatDate(endDate);
+    event.end_time = formatTime(endDate);
+  }
+
+  return event;
+}
+
+export function refreshCalendars() {
   // Refresh main calendar iframe
   const mainIframe = document.getElementById('calendar-iframe');
   if (mainIframe && mainIframe.src) {
@@ -327,14 +335,8 @@ function refreshCalendars() {
   console.log('📅 Calendars refreshed');
 }
 
-// Initialize current date
-updateCurrentDate();
-
-// Update date every minute
-setInterval(updateCurrentDate, 60000);
-
 // ========== TOAST NOTIFICATION SYSTEM ==========
-function showToast(title, message, type = 'info', duration = 4000) {
+export function showToast(title, message, type = 'info', duration = 4000) {
   const container = document.getElementById('toast-container');
 
   // Create toast element
@@ -437,8 +439,11 @@ async function handleProcessEmails() {
           processingToast.textContent = `Analyzing email ${data.current} of ${data.total}...`;
         }
       } else if (data.type === 'event') {
+        // Parse event data to convert ISO times to 12-hour format
+        const parsedEvent = parseEventData(data.event);
+
         // Add event card immediately as it's found
-        const card = createEmailEventCard(data.event);
+        const card = createEventCard(parsedEvent, { defaultTag: 'Email Import', hideEventLink: true });
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         emailEventsContainer.appendChild(card);
@@ -538,16 +543,21 @@ async function handleProcessEmails() {
 }
 
 
-// Create event card for email events (similar to browse events)
-function createEmailEventCard(event) {
-  const card = document.createElement('div');
-  card.className = 'event-card-browse';
+// ========== EVENT CARD CREATION ==========
 
-  // Set time value
+// Create event card with customizable handlers
+export function createEventCard(event, options = {}) {
+  const card = document.createElement('div');
+  card.className = 'event-card';
+
+  // Set time value to 'All Day' if the event lasts the whole day
   let time = event.start_time;
   if (event.start_time === "12:00 AM" && event.end_time === "11:59 PM") {
     time = "All Day";
   }
+
+  // Default tag if not provided
+  const defaultTag = options.defaultTag || 'General';
 
   // Build the HTML for the card
   let html = '<div class="event-card-title">' + (event.summary || 'Untitled Event') + '</div>';
@@ -555,7 +565,7 @@ function createEmailEventCard(event) {
   html += '<div class="event-card-info"><strong>🕐</strong><span>' + (time || 'Time TBA') + '</span></div>';
   html += '<div class="event-card-info"><strong>📍</strong><span>' + (event.location || 'Location TBA') + '</span></div>';
   html += '<div class="event-card-footer">';
-  html += '  <span class="event-tag">' + (event.tag || 'Email Import') + '</span>';
+  html += '  <span class="event-tag">' + (event.tag || defaultTag) + '</span>';
   html += '  <div class="card-actions">';
   html += '    <button class="show-more-btn">Details</button>';
   html += '    <button class="add-to-calendar-btn">+ Add</button>';
@@ -567,19 +577,23 @@ function createEmailEventCard(event) {
   // Add click handlers to the buttons
   const detailsButton = card.querySelector('.show-more-btn');
   detailsButton.onclick = function() {
-    showEmailEventDetails(event);
+    if (options.onShowDetails) {
+      options.onShowDetails(event);
+    } else {
+      showEventDetails(event, options.hideEventLink);
+    }
   };
 
   const addButton = card.querySelector('.add-to-calendar-btn');
   addButton.onclick = function() {
-    addEmailEventToCalendar(event);
+    addEventToGoogleCalendar(event);
   };
 
   return card;
 }
 
-// Show email event details in modal
-function showEmailEventDetails(event) {
+// Show event details in modal
+export function showEventDetails(event, hideEventLink = false) {
   const detailModal = document.getElementById('detail-modal');
 
   document.getElementById('detail-title').textContent = event.summary || 'Untitled Event';
@@ -593,50 +607,19 @@ function showEmailEventDetails(event) {
   }
 
   document.getElementById('detail-location').textContent = event.location || 'TBA';
-  document.getElementById('detail-tag').textContent = event.tag || 'Email Import';
+  document.getElementById('detail-tag').textContent = event.tag || 'General';
   document.getElementById('detail-description').textContent = event.description || 'No description available.';
 
-  // Hide the event link for email events
+  // Set the event link if it exists
   const linkElement = document.getElementById('detail-link');
-  linkElement.style.display = 'none';
+  if (hideEventLink || !event.htmlLink) {
+    linkElement.style.display = 'none';
+  } else {
+    linkElement.href = event.htmlLink;
+    linkElement.style.display = 'inline-block';
+  }
 
   // Show the modal
   detailModal.style.display = 'flex';
-}
-
-// Add email event to Google Calendar
-async function addEmailEventToCalendar(event) {
-  // Check if user is connected to Google Calendar
-  if (!window.calendarAPI || !window.calendarAPI.isConnected()) {
-    showToast('Not Connected', 'Please connect your Google Calendar first!', 'warning');
-    return;
-  }
-
-  try {
-    const eventData = {
-      summary: event.summary || 'Untitled Event',
-      location: event.location || '',
-      description: event.description || '',
-      start: {
-        dateTime: event.start,
-        timeZone: 'America/Chicago'
-      },
-      end: {
-        dateTime: event.end,
-        timeZone: 'America/Chicago'
-      }
-    };
-
-    const response = await window.calendarAPI.addEvent(eventData);
-    if (response) {
-      refreshCalendars();
-      showToast('Event Added', `"${event.summary}" was added to your Google Calendar`, 'success');
-    } else {
-      showToast('Failed', 'Could not add event to calendar', 'error');
-    }
-  } catch (error) {
-    console.error('Error adding event to calendar:', error);
-    showToast('Error', 'Failed to add event to calendar. Please try again.', 'error');
-  }
 }
 

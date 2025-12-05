@@ -1,5 +1,8 @@
 // Google Calendar Connection Script
 
+// Import shared functions from script.js
+import { showToast, refreshCalendars } from './script.js';
+
 let tokenClient;
 let gapiInited = false;
 let gisInited = false;
@@ -116,20 +119,7 @@ function checkIfReady() {
 
 function handleRefreshClick() {
     console.log('🔄 Manually refreshing calendars...');
-
-    // Refresh main calendar iframe
-    const mainIframe = document.getElementById('calendar-iframe');
-    if (mainIframe && mainIframe.src) {
-        mainIframe.src = mainIframe.src;
-    }
-
-    // Refresh today's agenda iframe
-    const agendaIframe = document.getElementById('today-agenda-iframe');
-    if (agendaIframe && agendaIframe.src) {
-        agendaIframe.src = agendaIframe.src;
-    }
-
-    showNotification('📅 Calendars refreshed!', 'success');
+    refreshCalendars();
 }
 
 function handleConnectClick() {
@@ -244,10 +234,7 @@ async function onCalendarConnected() {
 
             todayIframe.src = agendaSrc;
         }
-
-        // Show success message
-        showNotification(`✅ Successfully connected ${calendars.length} calendars!`, 'success');
-
+        
     } catch (error) {
         console.error('❌ Error loading calendar:', error);
         alert('Error loading calendar. Please try again.');
@@ -279,62 +266,58 @@ function onCalendarDisconnected() {
 
     // Clear upcoming events
     document.getElementById('upcoming-events').innerHTML = '<p class="no-events-text">Connect your calendar to see upcoming events</p>';
-    
-    showNotification('Disconnected from Google Calendar', 'info');
 }
 
-function showEventDetails(event) {
-    const modal = document.getElementById('detail-modal');
-    if (!modal) return;
-    
-    const start = event.start.dateTime || event.start.date;
-    const startDate = new Date(start);
-    
-    document.getElementById('detail-title').textContent = event.summary || 'Untitled Event';
-    document.getElementById('detail-date').textContent = startDate.toLocaleDateString();
-    document.getElementById('detail-time').textContent = event.start.dateTime 
-        ? startDate.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
-        : 'All day';
-    document.getElementById('detail-location').textContent = event.location || 'No location';
-    document.getElementById('detail-host').textContent = event.organizer?.email || 'Unknown';
-    document.getElementById('detail-description').textContent = event.description || 'No description';
-    
-    const link = document.getElementById('detail-link');
-    if (event.htmlLink) {
-        link.href = event.htmlLink;
-        link.style.display = 'inline-block';
-    } else {
-        link.style.display = 'none';
+// Export function to check if user is connected (for other scripts)
+export function isCalendarConnected() {
+    return gapi.client.getToken() !== null;
+}
+
+// Export main function for adding events to Google Calendar
+export async function addEventToGoogleCalendar(event) {
+    // Check if user is connected to Google Calendar
+    if (!gapi.client.getToken()) {
+        showToast('Not Connected', 'Please connect your Google Calendar first!', 'warning');
+        return null;
     }
-    
-    modal.style.display = 'flex';
-}
 
-// Helper function to escape HTML and prevent XSS
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+    try {
+        // Prepare event data for Google Calendar format
+        const eventData = {
+            summary: event.summary || 'Untitled Event',
+            location: event.location || '',
+            description: event.description || '',
+            start: {
+                dateTime: event.start,
+                timeZone: 'America/Chicago'
+            },
+            end: {
+                dateTime: event.end,
+                timeZone: 'America/Chicago'
+            }
+        };
 
-// Notification helper
-function showNotification(message, type = 'info') {
-    // You can implement a toast notification here
-    console.log(`[${type.toUpperCase()}] ${message}`);
-}
-
-// Export functions for use in other scripts
-window.calendarAPI = {
-    isConnected: () => gapi.client.getToken() !== null,
-    getToken: () => gapi.client.getToken(),
-    addEvent: async (eventDetails) => {
-        if (!gapi.client.getToken()) {
-            throw new Error('Not connected to Google Calendar');
-        }
-        
-        return await gapi.client.calendar.events.insert({
+        // Add event to Google Calendar using GAPI
+        const response = await gapi.client.calendar.events.insert({
             'calendarId': 'primary',
-            'resource': eventDetails
+            'resource': eventData
         });
+
+        if (response) {
+            showToast('Event Added', `"${event.summary}" was added to your Google Calendar`, 'success');
+
+            // Refresh the calendar iframes to show the new event
+            refreshCalendars();
+
+            return response;
+        } else {
+            showToast('Failed', 'Could not add event to calendar', 'error');
+            return null;
+        }
+
+    } catch (error) {
+        console.error('Error adding event to calendar:', error);
+        showToast('Error', 'Failed to add event to calendar. Please try again.', 'error');
+        return null;
     }
-};
+}

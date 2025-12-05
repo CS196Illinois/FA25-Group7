@@ -21,7 +21,8 @@ load_dotenv()
 TENANT_ID = os.getenv("TENANT_ID")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-OPENAI_KEY = os.getenv("CHAT_KEY")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
+
 
 # Get the directory where this script is located
 BASE_DIR = Path(__file__).resolve().parent

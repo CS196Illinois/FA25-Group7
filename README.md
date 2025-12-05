@@ -1,5 +1,5 @@
 # Group 7
-Group Name: Calendar Crew
+Group Name: EventFlow
 
 [MVP Link](https://docs.google.com/document/d/1WsX-KeNL8hnaEEFZJ60RM2zYCNZ7Pj1u/edit?usp=sharing)
 

@@ -1,5 +1,19 @@
 // ** CO-AUTHORED BY CLAUDE CODE ** //
 
+// Import shared functions from script.js
+import {
+  showToast,
+  refreshCalendars,
+  formatDate,
+  formatTime,
+  parseEventData,
+  createEventCard,
+  showEventDetails
+} from './script.js';
+
+// Import calendar functions from calendar-connect.js
+import { addEventToGoogleCalendar } from './calendar-connect.js';
+
 // Initialize Firebase
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
@@ -83,48 +97,6 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error('Error loading events:', error);
         browseContainer.innerHTML = '<p style="text-align: center; color: #888;">Error loading events</p>';
     }
-  }
-
-  // ========== Parse Event Data ==========
-  // Convert scraper format to display format
-  function parseEventData(event) {
-    // Parse ISO datetime strings (e.g., "2025-11-30T14:00:00-06:00")
-    if (event.start && event.start.includes('T')) {
-      const startDate = new Date(event.start);
-      event.start_date = formatDate(startDate);
-      event.start_time = formatTime(startDate);
-    }
-
-    if (event.end && event.end.includes('T')) {
-      const endDate = new Date(event.end);
-      event.end_date = formatDate(endDate);
-      event.end_time = formatTime(endDate);
-    }
-
-    return event;
-  }
-
-  // ========== Format Date Helper ==========
-  function formatDate(date) {
-    // Returns "Month Day, Year" format (e.g., "November 30, 2025")
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    const month = monthNames[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${month} ${day}, ${year}`;
-  }
-
-  // ========== Format Time Helper ==========
-  function formatTime(date) {
-    // Returns "HH:MM AM/PM" format
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12; // Convert to 12-hour format
-    return `${hours}:${minutes} ${ampm}`;
   }
 
   // ========== Sort Events by Date/Time ==========
@@ -229,136 +201,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // ========== STEP 4: Create a Single Event Card ==========
-  function createEventCard(event) {
-    // Create the card container
-    let card = document.createElement('div');
-    card.className = 'event-card-browse';
-
-    // Set time value to 'All Day' if the event lasts the whole day; else make it the start time
-    let time = event.start_time
-    if (event.start_time == "12:00 AM" && event.end_time == "11:59 PM") {
-        time = "All Day"
-    }
-
-    // Build the HTML for the card
-    let html = '<div class="event-card-title">' + (event.summary || 'Untitled Event') + '</div>';
-    html += '<div class="event-card-info"><strong>📅</strong><span>' + (event.start_date || 'Date TBA') + '</span></div>';
-    html += '<div class="event-card-info"><strong>🕐</strong><span>' + (time || 'Time TBA') + '</span></div>';
-    html += '<div class="event-card-info"><strong>📍</strong><span>' + (event.location || 'Location TBA') + '</span></div>';
-    html += '<div class="event-card-footer">';
-    html += '  <span class="event-tag">' + (event.tag || 'General') + '</span>';
-    html += '  <div class="card-actions">';
-    html += '    <button class="show-more-btn">Details</button>';
-    html += '    <button class="add-to-calendar-btn">+ Add</button>';
-    html += '  </div>';
-    html += '</div>';
-
-    card.innerHTML = html;
-
-    // Add click handlers to the buttons
-    let detailsButton = card.querySelector('.show-more-btn');
-    detailsButton.onclick = function() {
-      showEventDetails(event);
-    };
-
-    let addButton = card.querySelector('.add-to-calendar-btn');
-    addButton.onclick = function() {
-      addToCalendar(event);
-    };
-
-    return card;
-  }
-
-  // ========== STEP 5: Show Event Details in Modal ==========
-  function showEventDetails(event) {
-    // Fill in the modal with event information
-    document.getElementById('detail-title').textContent = event.summary || 'Untitled Event';
-    document.getElementById('detail-date').textContent = event.start_date || 'TBA';
-
-    // Set time value to 'All Day' if the event lasts the whole day; else make it time listed in the event data
-    if (event.start_time == "12:00 AM" && event.end_time == "11:59 PM") {
-        document.getElementById('detail-time').textContent = "All Day";
-    } else {
-        document.getElementById('detail-time').textContent = (event.start_time || '') + ' - ' + (event.end_time || '');
-    }
-
-    document.getElementById('detail-location').textContent = event.location || 'TBA';
-    document.getElementById('detail-tag').textContent = event.tag || 'General';
-    document.getElementById('detail-description').textContent = event.description || 'No description available.';
-
-    // Set the event link if it exists
-    let linkElement = document.getElementById('detail-link');
-    if (event.htmlLink) {
-      linkElement.href = event.htmlLink;
-      linkElement.style.display = 'inline-block';
-    } else {
-      linkElement.style.display = 'none';
-    }
-
-    // Show the modal
-    detailModal.style.display = 'flex';
-  }
-
-  // ========== STEP 6: Add to Calendar ==========
-  async function addToCalendar(event) {
-    // Check if user is connected to Google Calendar
-    if (!window.calendarAPI || !window.calendarAPI.isConnected()) {
-      showToast('Not Connected', 'Please connect your Google Calendar first!', 'warning');
-      return;
-    }
-
-    try {
-      // Prepare event data for Google Calendar format
-      const eventData = {
-        summary: event.summary || 'Untitled Event',
-        location: event.location || '',
-        description: event.description || '',
-        start: {
-          dateTime: event.start,
-          timeZone: 'America/Chicago'
-        },
-        end: {
-          dateTime: event.end,
-          timeZone: 'America/Chicago'
-        }
-      };
-
-      // Call the Flask backend to add event
-      const response = await window.calendarAPI.addEvent(eventData)
-      if (response) {
-        showToast('Event Added', `"${event.summary}" was added to your Google Calendar`, 'success');
-
-        // Refresh the calendar iframes to show the new event
-        refreshCalendars();
-      } else {
-        showToast('Failed', 'Could not add event to calendar', 'error');
-      }
-
-    } catch (error) {
-      console.error('Error adding event to calendar:', error);
-      showToast('Error', 'Failed to add event to calendar. Please try again.', 'error');
-    }
-  }
-
-  // ========== Refresh Calendar Iframes ==========
-  function refreshCalendars() {
-    // Refresh main calendar iframe
-    const mainIframe = document.getElementById('calendar-iframe');
-    if (mainIframe && mainIframe.src) {
-      mainIframe.src = mainIframe.src; // Force reload by resetting src
-    }
-
-    // Refresh today's agenda iframe
-    const agendaIframe = document.getElementById('today-agenda-iframe');
-    if (agendaIframe && agendaIframe.src) {
-      agendaIframe.src = agendaIframe.src; // Force reload by resetting src
-    }
-
-    console.log('📅 Calendars refreshed');
-  }
-
-  // ========== STEP 7: Search Function ==========
+  // ========== STEP 4: Search Function ==========
   // Filter events based on search text
   function searchEvents() {
     let searchText = searchInput.value.toLowerCase();
@@ -399,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function() {
     displayEvents(filtered);
   }
 
-  // ========== STEP 8: Event Listeners ==========
+  // ========== STEP 5: Event Listeners ==========
   // When user types in search box
   searchInput.addEventListener('input', searchEvents);
 
@@ -418,6 +261,5 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
-  // ========== START THE APP ==========
   loadEvents();
 });

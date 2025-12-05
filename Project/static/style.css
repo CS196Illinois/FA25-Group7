@@ -347,6 +347,11 @@ header h1 {
   box-shadow: var(--shadow-md);
 }
 
+.email-events-section .browse-container {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  max-height: 600px;
+}
+
 .parse-emails-btn {
   background: #E84A27;
   color: white;
@@ -456,7 +461,7 @@ header h1 {
 }
 
 /* ========== EVENT CARDS ========== */
-.event-card-browse {
+.event-card {
   background: white;
   border: 2px solid var(--gray-200);
   border-radius: var(--radius-lg);
@@ -469,7 +474,7 @@ header h1 {
   flex-direction: column;
 }
 
-.event-card-browse:hover {
+.event-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-xl);
   border-color: #E84A27;
@@ -982,7 +987,7 @@ header h1 {
     max-height: 400px;
   }
 
-  .event-card-browse {
+  .event-card {
     padding: 16px;
   }
 
@@ -1016,7 +1021,7 @@ header h1 {
   }
 }
 
-.event-card-browse {
+.event-card {
   animation: fadeIn 0.3s ease-out;
 }
 

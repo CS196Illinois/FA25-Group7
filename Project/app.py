@@ -12,10 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent
 # Add the email_parser directory to the Python path so we can import from readEmail
 sys.path.append(os.path.join(os.path.dirname(__file__), 'email_parser'))
 
-from readEmail import (
+from parse_email import (
     fetch_emails,
-    parse_email_content,
-    get_calendar_service
+    parse_email_content
 )
 
 load_dotenv()
@@ -127,7 +126,6 @@ def process_emails_stream():
 
     return app.response_class(generate(), mimetype='text/event-stream')
 
-
 # Test endpoint
 @app.route("/api/test", methods=["GET"])
 def test():
@@ -176,56 +174,6 @@ def parse_text():
         print(f"Error parsing text: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-
-
-# Add event to Google Calendar
-@app.route("/add_event", methods=["POST"])
-def add_event():
-    """Add an event to Google Calendar"""
-    try:
-        data = request.json
-        summary = data.get("summary")
-        start = data.get("start")
-        end = data.get("end")
-        location = data.get("location", "")
-        description = data.get("description", "")
-
-        if not summary or not start or not end:
-            return jsonify({"error": "Missing required fields (summary, start, end)"}), 400
-
-        # Get Google Calendar service
-        service = get_calendar_service()
-
-        # Create event object
-        event = {
-            "summary": summary,
-            "location": location,
-            "description": description,
-            "start": {
-                "dateTime": start,
-                "timeZone": "America/Chicago",
-            },
-            "end": {
-                "dateTime": end,
-                "timeZone": "America/Chicago",
-            },
-        }
-
-        # Insert event into calendar
-        created_event = service.events().insert(calendarId="primary", body=event).execute()
-
-        return jsonify({
-            "status": "success",
-            "event_id": created_event.get("id"),
-            "event_link": created_event.get("htmlLink")
-        }), 200
-
-    except Exception as e:
-        import traceback
-        print(f"Error adding event to calendar: {str(e)}")
-        print(traceback.format_exc())
-        return jsonify({"error": str(e)}), 500
-
 
 def format_email_event(event):
     """Format parsed email event for display"""
